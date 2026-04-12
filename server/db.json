@@ -1,0 +1,519 @@
+{
+  "users": [
+    {
+      "id": "7d425618-a898-4cb7-b0b3-0d7e643badca",
+      "email": "nike@example.com",
+      "password_hash": "mock-hash",
+      "role": "advertiser",
+      "plan": "free",
+      "banner_gen_used": 0,
+      "created_at": "2026-04-11T22:42:59.548Z",
+      "last_login_at": "2026-04-11T22:42:59.548Z"
+    },
+    {
+      "id": "663357be-6ce8-46d7-b19b-bfddac00f29d",
+      "email": "mirik@example.com",
+      "password_hash": "mock-hash",
+      "role": "advertiser",
+      "plan": "free",
+      "banner_gen_used": 0,
+      "created_at": "2026-04-11T23:26:54.554Z",
+      "last_login_at": "2026-04-11T23:26:54.554Z"
+    },
+    {
+      "id": "b17f9e8d-8ff2-4f11-afc1-4cda332451d9",
+      "email": "instagram@example.com",
+      "password_hash": "mock-hash",
+      "role": "advertiser",
+      "plan": "free",
+      "banner_gen_used": 0,
+      "created_at": "2026-04-12T00:48:42.832Z",
+      "last_login_at": "2026-04-12T00:48:42.832Z"
+    },
+    {
+      "id": "23240fe6-8dab-4961-9d62-639bac38581e",
+      "email": "12345678@example.com",
+      "password_hash": "mock-hash",
+      "role": "advertiser",
+      "plan": "free",
+      "banner_gen_used": 0,
+      "created_at": "2026-04-12T01:51:47.047Z",
+      "last_login_at": "2026-04-12T01:51:47.047Z"
+    }
+  ],
+  "brands": [
+    {
+      "id": "fa03a764-519f-482d-9927-11163cc50649",
+      "user_id": "7d425618-a898-4cb7-b0b3-0d7e643badca",
+      "name": "nike",
+      "industry": "E-commerce",
+      "website": "https://chatgpt.com/c/69da1843-9588-8330-915c-0295c0219f5f",
+      "default_objective": "traffic",
+      "default_geo": [],
+      "default_targeting": {},
+      "default_strategy": "cpc",
+      "avg_order_value": null
+    },
+    {
+      "id": "9d60b8c7-2623-4117-a9a1-dd248a2bcad7",
+      "user_id": "663357be-6ce8-46d7-b19b-bfddac00f29d",
+      "name": "mirik",
+      "industry": "SaaS",
+      "website": "",
+      "default_objective": "traffic",
+      "default_geo": [],
+      "default_targeting": {},
+      "default_strategy": "cpc",
+      "avg_order_value": null
+    },
+    {
+      "id": "c3d9b723-46a0-486f-96ae-a29becf6d4af",
+      "user_id": "b17f9e8d-8ff2-4f11-afc1-4cda332451d9",
+      "name": "instagram",
+      "industry": "E-commerce",
+      "website": "",
+      "default_objective": "traffic",
+      "default_geo": [],
+      "default_targeting": {},
+      "default_strategy": "cpc",
+      "avg_order_value": null
+    },
+    {
+      "id": "bb3e1418-bbc9-4ab1-a827-8bef76653106",
+      "user_id": "663357be-6ce8-46d7-b19b-bfddac00f29d",
+      "name": "MIRIK",
+      "industry": "E-commerce",
+      "website": "",
+      "default_objective": "traffic",
+      "default_geo": [],
+      "default_targeting": {},
+      "default_strategy": "cpc",
+      "avg_order_value": null
+    },
+    {
+      "id": "20e66d9c-5f75-43ab-a09d-ae7a69aee207",
+      "user_id": "23240fe6-8dab-4961-9d62-639bac38581e",
+      "name": "12345678",
+      "industry": "E-commerce",
+      "website": "",
+      "default_objective": "traffic",
+      "default_geo": [],
+      "default_targeting": {},
+      "default_strategy": "cpc",
+      "avg_order_value": null
+    }
+  ],
+  "campaigns": [
+    {
+      "id": "c553d802-0217-4d36-a01f-88867e802ee4",
+      "brand_id": "00000000-0000-0000-0000-000000000000",
+      "name": "летняя распродажа ",
+      "status": "pending_review",
+      "objective": "awareness",
+      "landing_url": "https://chatgpt.com/c/69da1843-9588-8330-915c-0295c0219f5f",
+      "ad_format": "auto",
+      "geo": [
+        "Узбекистан"
+      ],
+      "targeting": {},
+      "budget_lifetime": "100",
+      "budget_daily": "10",
+      "strategy": "cpa",
+      "start_date": "2026-04-13T19:00:00.000Z",
+      "end_date": "2026-04-26T19:00:00.000Z",
+      "schedule_hours": null,
+      "frequency_cap": "3",
+      "score_payload": null,
+      "spent_total": 0,
+      "created_at": "2026-04-11T22:20:26.988Z",
+      "updated_at": "2026-04-11T22:20:26.990Z",
+      "banner_url": "/uploads/6c707ead-e6d8-4b72-98ce-1dd8c495199a.jpg"
+    },
+    {
+      "id": "4ffd6115-8ff5-4f78-9231-b51e3359b71b",
+      "brand_id": "00000000-0000-0000-0000-000000000000",
+      "name": "летняя распродажа 2027",
+      "status": "pending_review",
+      "objective": "traffic",
+      "landing_url": "https://chatgpt.com/c/69da1843-9588-8330-915c-0295c0219f5f",
+      "ad_format": "auto",
+      "geo": [
+        "Глобально",
+        "Кыргызстан",
+        "Казахстан",
+        "Узбекистан"
+      ],
+      "targeting": {},
+      "budget_lifetime": "100",
+      "budget_daily": "50",
+      "strategy": "cpm",
+      "start_date": "2026-04-11T19:00:00.000Z",
+      "end_date": "2026-04-13T19:00:00.000Z",
+      "schedule_hours": null,
+      "frequency_cap": "3",
+      "score_payload": null,
+      "spent_total": 0,
+      "created_at": "2026-04-11T22:47:42.057Z",
+      "updated_at": "2026-04-11T22:47:42.057Z",
+      "banner_url": "/uploads/e0dc646e-aa64-47c8-877a-c2cf8b0a241c.png"
+    },
+    {
+      "id": "267cc346-0ad9-4645-92b4-30f79ace3a30",
+      "brand_id": "00000000-0000-0000-0000-000000000000",
+      "name": "летняя распродажа 2027",
+      "status": "pending_review",
+      "objective": "traffic",
+      "landing_url": "https://chatgpt.com/c/69da1843-9588-8330-915c-0295c0219f5f",
+      "ad_format": "auto",
+      "geo": [
+        "Глобально",
+        "Кыргызстан",
+        "Казахстан",
+        "Узбекистан"
+      ],
+      "targeting": {},
+      "budget_lifetime": "100",
+      "budget_daily": "50",
+      "strategy": "cpm",
+      "start_date": "2026-04-11T19:00:00.000Z",
+      "end_date": "2026-04-13T19:00:00.000Z",
+      "schedule_hours": null,
+      "frequency_cap": "3",
+      "score_payload": null,
+      "spent_total": 0,
+      "created_at": "2026-04-11T22:47:52.651Z",
+      "updated_at": "2026-04-11T22:47:52.651Z",
+      "banner_url": "/uploads/d0a0158c-8837-4d3f-b5ce-f23fab8df68b.png"
+    },
+    {
+      "id": "e05df535-5b47-4a5b-a2fa-2dea744c6bd8",
+      "brand_id": "00000000-0000-0000-0000-000000000000",
+      "name": "продажа кроссовок",
+      "status": "pending_review",
+      "objective": "awareness",
+      "landing_url": "https://boostbuddy-connect.lovable.app/",
+      "ad_format": "auto",
+      "geo": [
+        "Узбекистан",
+        "Казахстан"
+      ],
+      "targeting": {},
+      "budget_lifetime": "400",
+      "budget_daily": "20",
+      "strategy": "cpm",
+      "start_date": "2026-04-11T19:00:00.000Z",
+      "end_date": "2026-04-30T19:00:00.000Z",
+      "schedule_hours": null,
+      "frequency_cap": "3",
+      "score_payload": {
+        "predicted_ctr": 0.015,
+        "predicted_cvr": 0.02,
+        "predicted_impressions": 88888,
+        "predicted_clicks": 1333,
+        "predicted_cpm": 4.5,
+        "predicted_conversions": 26,
+        "predicted_revenue": 1300,
+        "effectiveness_score": 0.01,
+        "objective": "awareness",
+        "target_segments": [
+          "all",
+          "18-22",
+          "узбекистан"
+        ]
+      },
+      "spent_total": 0,
+      "created_at": "2026-04-12T01:36:36.251Z",
+      "updated_at": "2026-04-12T01:36:36.252Z",
+      "banner_url": null
+    },
+    {
+      "id": "9d17b41c-6a3a-4239-969d-71ac886dbf62",
+      "brand_id": "00000000-0000-0000-0000-000000000000",
+      "name": "распродажа кроссовк",
+      "status": "pending_review",
+      "objective": "roas",
+      "landing_url": "https://boostbuddy-connect.lovable.app/",
+      "ad_format": "auto",
+      "geo": [
+        "Узбекистан"
+      ],
+      "targeting": {},
+      "budget_lifetime": "45",
+      "budget_daily": "10",
+      "strategy": "cpc",
+      "start_date": "2026-04-11T19:00:00.000Z",
+      "end_date": "2026-04-21T19:00:00.000Z",
+      "schedule_hours": null,
+      "frequency_cap": "3",
+      "score_payload": {
+        "predicted_ctr": 0.015,
+        "predicted_cvr": 0.02,
+        "predicted_impressions": 10000,
+        "predicted_clicks": 150,
+        "predicted_cpm": 4.5,
+        "predicted_conversions": 3,
+        "predicted_revenue": 150,
+        "effectiveness_score": 0.01,
+        "objective": "roas",
+        "target_segments": [
+          "all",
+          "18-65",
+          "узбекистан"
+        ]
+      },
+      "spent_total": 0,
+      "created_at": "2026-04-12T01:55:12.580Z",
+      "updated_at": "2026-04-12T01:55:12.580Z",
+      "banner_url": "/uploads/17fd41e7-0699-4f63-bf6c-f4f44c5557d5.jpeg"
+    },
+    {
+      "id": "1e4a91a2-d65c-4d29-abb3-6fedc56e456d",
+      "brand_id": "00000000-0000-0000-0000-000000000000",
+      "name": "распродажа кроссовк",
+      "status": "pending_review",
+      "objective": "roas",
+      "landing_url": "https://boostbuddy-connect.lovable.app/",
+      "ad_format": "auto",
+      "geo": [
+        "Узбекистан"
+      ],
+      "targeting": {},
+      "budget_lifetime": "45",
+      "budget_daily": "10",
+      "strategy": "cpc",
+      "start_date": "2026-04-11T19:00:00.000Z",
+      "end_date": "2026-04-21T19:00:00.000Z",
+      "schedule_hours": null,
+      "frequency_cap": "3",
+      "score_payload": {
+        "predicted_ctr": 0.015,
+        "predicted_cvr": 0.02,
+        "predicted_impressions": 10000,
+        "predicted_clicks": 150,
+        "predicted_cpm": 4.5,
+        "predicted_conversions": 3,
+        "predicted_revenue": 150,
+        "effectiveness_score": 0.01,
+        "objective": "roas",
+        "target_segments": [
+          "all",
+          "18-65",
+          "узбекистан"
+        ]
+      },
+      "spent_total": 0,
+      "created_at": "2026-04-12T01:57:36.482Z",
+      "updated_at": "2026-04-12T01:57:36.482Z",
+      "banner_url": "/uploads/726e3499-2f2e-41e7-b25d-b33032fe1bdd.jpeg"
+    },
+    {
+      "id": "fca0eb15-ac23-497c-b7c6-f488b880793a",
+      "brand_id": "00000000-0000-0000-0000-000000000000",
+      "name": "распродажа кроссовк",
+      "status": "pending_review",
+      "objective": "roas",
+      "landing_url": "https://boostbuddy-connect.lovable.app/",
+      "ad_format": "auto",
+      "geo": [
+        "Узбекистан"
+      ],
+      "targeting": {},
+      "budget_lifetime": "45",
+      "budget_daily": "10",
+      "strategy": "cpc",
+      "start_date": "2026-04-11T19:00:00.000Z",
+      "end_date": "2026-04-21T19:00:00.000Z",
+      "schedule_hours": null,
+      "frequency_cap": "3",
+      "score_payload": {
+        "predicted_ctr": 0.015,
+        "predicted_cvr": 0.02,
+        "predicted_impressions": 10000,
+        "predicted_clicks": 150,
+        "predicted_cpm": 4.5,
+        "predicted_conversions": 3,
+        "predicted_revenue": 150,
+        "effectiveness_score": 0.01,
+        "objective": "roas",
+        "target_segments": [
+          "all",
+          "18-65",
+          "узбекистан"
+        ]
+      },
+      "spent_total": 0,
+      "created_at": "2026-04-12T01:59:12.633Z",
+      "updated_at": "2026-04-12T01:59:12.633Z",
+      "banner_url": "/uploads/3ce25607-9a45-4aa9-80b9-9f4ad5af85a5.jpeg"
+    }
+  ],
+  "publisher_sites": [
+    {
+      "id": "c9a3d38e-9309-4da4-8d2a-075d28fc5c7b",
+      "domain": "nike.com",
+      "category": "ecommerce",
+      "language": "ru",
+      "geo": "uzbekistan",
+      "traffic": "<1000",
+      "deviceSplit": "mixed",
+      "contentType": "ugc",
+      "slots": [
+        {
+          "format": "160x600",
+          "location": "header",
+          "quantity": "1"
+        }
+      ],
+      "status": "active",
+      "created_at": "2026-04-11T23:22:58.390Z"
+    },
+    {
+      "id": "f613e440-91fd-49de-b49c-c0b7f8ae17dc",
+      "domain": "NIKE.CO",
+      "category": "news",
+      "language": "ru",
+      "geo": "kz",
+      "traffic": "1k-10k",
+      "deviceSplit": "mobile_heavy",
+      "contentType": "text",
+      "slots": [
+        {
+          "format": "300x250",
+          "location": "footer",
+          "quantity": "1"
+        }
+      ],
+      "status": "active",
+      "created_at": "2026-04-12T00:38:10.903Z"
+    },
+    {
+      "id": "6daf8f2d-2084-44f7-a4f7-233b328e46ca",
+      "domain": "nikee.co",
+      "category": "news",
+      "language": "ru",
+      "geo": "uzbekistan",
+      "traffic": "1k-10k",
+      "deviceSplit": "mixed",
+      "contentType": "text",
+      "slots": [
+        {
+          "format": "auto",
+          "location": "header",
+          "quantity": "1"
+        }
+      ],
+      "status": "active",
+      "created_at": "2026-04-12T00:44:41.636Z"
+    },
+    {
+      "id": "54518f81-f2f1-4ca5-b950-b75f913faab6",
+      "domain": "boostbuddy-connect.lovable.app",
+      "category": "news",
+      "language": "ru",
+      "geo": "uzbekistan",
+      "traffic": "1k-10k",
+      "deviceSplit": "desktop_heavy",
+      "contentType": "text",
+      "slots": [
+        {
+          "format": "300x250",
+          "location": "sidebar",
+          "quantity": "1"
+        }
+      ],
+      "status": "active",
+      "created_at": "2026-04-12T00:54:37.342Z"
+    },
+    {
+      "id": "69c91f23-8be3-4864-ace0-8bb5fdb6b37e",
+      "domain": "ike.com",
+      "category": "news",
+      "language": "ru",
+      "geo": "uzbekistan",
+      "traffic": "1k-10k",
+      "deviceSplit": "mobile_heavy",
+      "contentType": "video",
+      "slots": [
+        {
+          "format": "auto",
+          "location": "header",
+          "quantity": "1"
+        }
+      ],
+      "status": "active",
+      "created_at": "2026-04-12T01:51:10.690Z"
+    }
+  ],
+  "ai_chats": [
+    {
+      "id": "9bbfb6dc-ac77-490f-b80f-8c40eb935e6c",
+      "cardId": "geos",
+      "role": "user",
+      "text": "почему?",
+      "created_at": "2026-04-12T01:43:09.494Z"
+    },
+    {
+      "id": "c837f043-98ac-4e49-83bf-1f93f206bec6",
+      "cardId": "geos",
+      "role": "ai",
+      "text": "Указание «all» устройств без гео‑фильтра рассматривает показы по всей территории, включая регионы с низкой покупательной способностью и высокой стоимостью кликов. Это приводит к :\n\n1. **Снижению рентабельности** – бюджеты расходуются на пользователи из регионов, где средний чек ниже и конверсия хуже.  \n2. **Уменьшению показателей CPA/ROAS** – рекламные системы оптимизируют по общей аудитории, а не по тем, кто чаще совершает покупки.  \n3. **Потере возможностей масштабирования** – без сегментации трудно отследить, какие регионы действительно приносят прибыль и куда стоит направить дополнительные вложения.  \n\nНастройка гео‑таргетинга по самым прибыльным регионам СНГ (Москва, Санкт‑Петербург, Казахстан, Беларусь) позволит:\n\n- Сократить неэффективные показы в «мёртвых» регионах.  \n- Повысить средний показатель качества (CTR, конверсия).  \n- Точнее управлять бюджетом, распределяя его туда, где он даёт наибольший возврат.  \n\n**Практический шаг:** в рекламном кабинете установите таргетинг только на перечисленные регионы и отслеживайте основные метрики (CPA, ROAS, стоимость клика) в течение 1–2 недель. При появлении новых перспективных регионах их можно добавить в список.",
+      "created_at": "2026-04-12T01:43:21.047Z"
+    },
+    {
+      "id": "62a060ba-bd46-4b58-a3e0-ce46d6533c0e",
+      "cardId": "global",
+      "role": "user",
+      "text": "КАК БЫСТРО Я пойду в плюсы с такой рекламой?",
+      "created_at": "2026-04-12T01:48:10.741Z"
+    },
+    {
+      "id": "ec32c56f-6420-4c96-a734-e6462c36403c",
+      "cardId": "global",
+      "role": "ai",
+      "text": "С учётом бюджета 60 USD/день и широкого охвата в Узбекистане и Казахстане, первые позитивные результаты обычно появляются через 2‑3 недель работы кампании. Точные сроки зависят от креативов и оптимизации.",
+      "created_at": "2026-04-12T01:48:14.426Z"
+    },
+    {
+      "id": "8cd7e737-8152-4dc0-8ad7-ee9cf85a5ac5",
+      "cardId": "dailyBudget",
+      "role": "user",
+      "text": "но снизится же показ дней",
+      "created_at": "2026-04-12T01:54:04.219Z"
+    },
+    {
+      "id": "040c975f-c201-43ad-b969-c5bb9e6c171f",
+      "cardId": "dailyBudget",
+      "role": "ai",
+      "text": "Увеличивая бюджет, вы сохраняете или повышаете количество показов; при слишком малом бюджете система просто не доставит весь потенциал аудитории. Чем выше бюджет, тем стабильнее покрытие и статистика.",
+      "created_at": "2026-04-12T01:54:09.770Z"
+    },
+    {
+      "id": "637ce64e-e9d5-469c-8a8d-73749978313d",
+      "cardId": "lifetimeBudget",
+      "role": "user",
+      "text": "и че?",
+      "created_at": "2026-04-12T01:54:33.344Z"
+    },
+    {
+      "id": "b67d2485-b405-41f8-9ddd-ff2fe09d7440",
+      "cardId": "lifetimeBudget",
+      "role": "ai",
+      "text": "Лимит в $45 — слишком низок, поэтому кампании не набирают нужный объём показов. Увеличьте бюджет, чтобы алгоритм собрал достаточные данные и повысил эффективность.",
+      "created_at": "2026-04-12T01:54:36.625Z"
+    },
+    {
+      "id": "7baf9344-9ba0-472e-95c6-98757965564f",
+      "cardId": "lifetimeBudget",
+      "role": "user",
+      "text": "а как ваше анора покажет  мою рекламу",
+      "created_at": "2026-04-12T01:54:53.929Z"
+    },
+    {
+      "id": "e1a9e43f-495b-494b-bb7b-941535371d0e",
+      "cardId": "lifetimeBudget",
+      "role": "ai",
+      "text": "Anora подбирает оптимальные площадки и аудиторию на основе данных. Чем выше бюджет, тем больше тестов проведет алгоритм для поиска самых конверсионных пользователей.",
+      "created_at": "2026-04-12T01:54:56.056Z"
+    }
+  ]
+}
