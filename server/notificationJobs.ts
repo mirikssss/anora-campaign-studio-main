@@ -8,10 +8,20 @@ const __dirname = path.dirname(__filename);
 const dbPath = path.join(__dirname, 'db.json');
 
 function readDb() {
-  return JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
+  try {
+    if (!fs.existsSync(dbPath)) return { campaigns: [], brands: [], notification_log: [], notifications: [] };
+    const data = fs.readFileSync(dbPath, 'utf-8');
+    return JSON.parse(data);
+  } catch (e) {
+    return { campaigns: [], brands: [], notification_log: [], notifications: [] };
+  }
 }
 function writeDb(data: any) {
-  fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+  try {
+    fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+  } catch (e) {
+    console.warn('[JOBS DB WRITE ERROR] Filesystem might be read-only.');
+  }
 }
 
 function initDb(db: any) {

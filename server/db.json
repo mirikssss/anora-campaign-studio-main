@@ -180,11 +180,11 @@
       "schedule_hours": null,
       "frequency_cap": "3",
       "score_payload": null,
-      "spent_total": 0.12012470474308565,
+      "spent_total": 0.18255897421802914,
       "created_at": "2026-04-11T22:20:26.988Z",
       "updated_at": "2026-04-11T22:20:26.990Z",
       "banner_url": "/uploads/6c707ead-e6d8-4b72-98ce-1dd8c495199a.jpg",
-      "impressions": 4,
+      "impressions": 5,
       "clicks": 0
     },
     {
@@ -737,5 +737,6 @@
       "text": "Anora подбирает оптимальные площадки и аудиторию на основе данных. Чем выше бюджет, тем больше тестов проведет алгоритм для поиска самых конверсионных пользователей.",
       "created_at": "2026-04-12T01:54:56.056Z"
     }
-  ]
+  ],
+  "notifications": []
 }

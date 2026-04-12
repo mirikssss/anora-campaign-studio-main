@@ -55,7 +55,7 @@ function readDb() {
     if (!parsed.notifications) parsed.notifications = [];
     if (!parsed.ai_chats) parsed.ai_chats = [];
     return parsed;
-  } catch (e) {
+  } catch (e: any) {
     console.error('[DB READ ERROR]', e);
     return { users: [], brands: [], campaigns: [], publisher_sites: [], notifications: [], ai_chats: [] };
   }
@@ -64,7 +64,7 @@ function readDb() {
 function writeDb(data: any) {
   try {
     fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
-  } catch (e) {
+  } catch (e: any) {
     console.warn('[DB WRITE ERROR] Filesystem might be read-only (common on Vercel). Data not persisted.', e.message);
   }
 }
@@ -121,47 +121,54 @@ app.post('/api/brands', (req, res) => {
 
 // --- 3. CAMPAIGNS ---
 // "upload.single('banner')" saves the uploaded file and adds req.file
-app.post('/api/campaigns', upload.single('banner'), (req, res) => {
-  try {
-    const db = readDb();
-    const data = req.body;
+app.post('/api/campaigns', (req, res, next) => {
+  // Use a wrapper to handle multer errors if they occur
+  upload.single('banner')(req, res, (err) => {
+    if (err) {
+      console.error('Multer error:', err);
+      return res.status(500).json({ error: 'File upload failed (Filesystem might be read-only on Vercel)' });
+    }
+    
+    try {
+      const db = readDb();
+      const data = req.body;
 
-    // Some fields from FormData come as JSON strings
-    const geo = data.geo ? JSON.parse(data.geo) : [];
-    const targeting = data.targeting ? JSON.parse(data.targeting) : {};
+      // Some fields from FormData come as JSON strings
+      const geo = data.geo ? JSON.parse(data.geo) : [];
+      const targeting = data.targeting ? JSON.parse(data.targeting) : {};
 
-    const campaign = {
-      id: uuidv4(),
-      brand_id: data.brand_id || '00000000-0000-0000-0000-000000000000',
-      name: data.name,
-      status: 'active', // Demo optimization: set instantly to active instead of pending_review
-      objective: data.objective,
-      landing_url: data.landing_url,
-      ad_format: data.ad_format || 'auto',
-      geo,
-      targeting,
-      budget_lifetime: data.budget_lifetime,
-      budget_daily: data.budget_daily,
-      strategy: data.strategy,
-      start_date: data.start_date,
-      end_date: data.end_date,
-      schedule_hours: null,
-      frequency_cap: data.frequency_cap || 3,
-      score_payload: data.score_payload ? JSON.parse(data.score_payload) : null,
-      spent_total: 0,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      // Save path of the file
-      banner_url: req.file ? `/uploads/${req.file.filename}` : null
-    };
+      const campaign = {
+        id: uuidv4(),
+        brand_id: data.brand_id || '00000000-0000-0000-0000-000000000000',
+        name: data.name,
+        status: 'active',
+        objective: data.objective,
+        landing_url: data.landing_url,
+        ad_format: data.ad_format || 'auto',
+        geo,
+        targeting,
+        budget_lifetime: data.budget_lifetime,
+        budget_daily: data.budget_daily,
+        strategy: data.strategy,
+        start_date: data.start_date,
+        end_date: data.end_date,
+        schedule_hours: null,
+        frequency_cap: data.frequency_cap || 3,
+        score_payload: data.score_payload ? JSON.parse(data.score_payload) : null,
+        spent_total: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        banner_url: req.file ? `/uploads/${req.file.filename}` : null
+      };
 
-    db.campaigns.push(campaign);
-    writeDb(db);
-    res.json(campaign);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to create campaign' });
-  }
+      db.campaigns.push(campaign);
+      writeDb(db);
+      res.json(campaign);
+    } catch (error: any) {
+      console.error('Campaign creation crash:', error);
+      res.status(500).json({ error: 'Failed to create campaign', details: error.message });
+    }
+  });
 });
 
 app.get('/api/campaigns', (req, res) => {
@@ -404,7 +411,7 @@ app.get('/api/publishers/sites', (req, res) => {
   try {
     const db = readDb();
     res.json(db.publisher_sites || []);
-  } catch (e) {
+  } catch (e: any) {
     res.status(500).json({ error: 'Failed to fetch sites', details: e.message });
   }
 });
