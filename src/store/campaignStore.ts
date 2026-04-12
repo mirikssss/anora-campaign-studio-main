@@ -316,12 +316,22 @@ export const useCampaignStore = create<CampaignState>()(
               campaignData: {
                 campaignName: s.campaignName,
                 brandName: s.brandName,
+                industry: s.industry,
+                landingUrl: s.landingUrl,
                 audiences: [s.audienceType || 'all'],
                 objective: s.goal,
                 strategy: s.strategy,
+                geos: s.geos,
+                ageRange: s.ageRange,
+                gender: s.gender,
+                interests: s.interests,
+                budgetType: s.budgetType,
                 dailyBudget: s.dailyBudget,
                 lifetimeBudget: s.lifetimeBudget,
-                deviceTargeting: s.deviceTargeting
+                frequencyCap: s.frequencyCap,
+                deviceTargeting: s.deviceTargeting,
+                startDate: s.startDate ? new Date(s.startDate).toISOString() : null,
+                endDate: s.endDate ? new Date(s.endDate).toISOString() : null,
               },
               bannerBase64
             })

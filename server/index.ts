@@ -309,12 +309,22 @@ app.post('/api/analyze-campaign', async (req, res) => {
   Campaign Details:
   - Name: ${campaignData.campaignName}
   - Brand: ${campaignData.brandName}
-  - Audience: ${campaignData.audiences.join(', ')}
+  - Industry: ${campaignData.industry || 'Не указана'}
+  - Landing URL: ${campaignData.landingUrl || 'Не указан'}
+  - Audience Type: ${campaignData.audiences.join(', ')}
+  - Age Range: ${campaignData.ageRange ? campaignData.ageRange.join('-') : '18-65'}
+  - Gender: ${campaignData.gender || 'all'}
+  - Interests: ${campaignData.interests || 'Не указаны'}
   - Goal: ${campaignData.objective}
   - Strategy: ${campaignData.strategy}
-  - Daily Budget: $${campaignData.dailyBudget}
-  - Lifetime Budget: $${campaignData.lifetimeBudget}
+  - Geo Targeting: ${campaignData.geos?.length ? campaignData.geos.join(', ') : 'Не указано'}
+  - Budget Type: ${campaignData.budgetType || 'daily'}
+  - Daily Budget: $${campaignData.dailyBudget || 0}
+  - Lifetime Budget: $${campaignData.lifetimeBudget || 0}
+  - Frequency Cap: ${campaignData.frequencyCap || 3} показов/пользователь/день
   - Device Targeting: ${campaignData.deviceTargeting}
+  - Start Date: ${campaignData.startDate || 'Не указана'}
+  - End Date: ${campaignData.endDate || 'Не указана'}
   ${bannerBase64 ? '\n  A banner image is attached. Please also analyze the visual quality, design, text readability, color scheme, and overall ad effectiveness of the banner. If the banner has issues, add a card with id "bannerQuality".' : '\n  No banner image was provided.'}
   
   You MUST return ONLY a valid JSON object with this exact structure (NO markdown wrappers, NO backticks):
