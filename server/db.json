@@ -385,6 +385,46 @@
       "created_at": "2026-04-12T02:15:37.912Z",
       "updated_at": "2026-04-12T02:15:37.912Z",
       "banner_url": "/uploads/939e94b5-341f-4ec1-a468-743b2f321c1a.png"
+    },
+    {
+      "id": "691ef86d-a1b8-475f-9e15-43df72bd749f",
+      "brand_id": "00000000-0000-0000-0000-000000000000",
+      "name": "Продажа мониторов OLED",
+      "status": "active",
+      "objective": "awareness",
+      "landing_url": "https://pc.uz",
+      "ad_format": "auto",
+      "geo": [
+        "Узбекистан"
+      ],
+      "targeting": {},
+      "budget_lifetime": "250",
+      "budget_daily": "25",
+      "strategy": "cpm",
+      "start_date": "2026-04-19T19:00:00.000Z",
+      "end_date": "2026-04-29T19:00:00.000Z",
+      "schedule_hours": null,
+      "frequency_cap": "3",
+      "score_payload": {
+        "predicted_ctr": 0.015,
+        "predicted_cvr": 0.02,
+        "predicted_impressions": 55555,
+        "predicted_clicks": 833,
+        "predicted_cpm": 4.5,
+        "predicted_conversions": 16,
+        "predicted_revenue": 800,
+        "effectiveness_score": 0.01,
+        "objective": "awareness",
+        "target_segments": [
+          "all",
+          "18-31",
+          "узбекистан"
+        ]
+      },
+      "spent_total": 0,
+      "created_at": "2026-04-12T02:22:29.622Z",
+      "updated_at": "2026-04-12T02:22:29.622Z",
+      "banner_url": null
     }
   ],
   "publisher_sites": [

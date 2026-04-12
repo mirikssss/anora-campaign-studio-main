@@ -510,12 +510,23 @@ export const useCampaignStore = create<CampaignState>()(
         }
         
         try {
-          const res = await fetch('http://localhost:3001/api/campaigns', {
+          const res = await fetch(`${API_URL}/api/campaigns`, {
             method: 'POST',
             body: formData,
           });
           if (!res.ok) throw new Error('API Error');
-          set({ screen: 'dashboard' });
+          
+          // Clear the draft to remove the "unfinished campaign" warning
+          set({
+            screen: 'dashboard',
+            campaignName: '',
+            goal: null,
+            geos: [],
+            audienceType: null,
+            aiDescription: '',
+            landingUrl: '',
+            uploadedFile: null,
+          });
         } catch (e) {
           console.error('Failed to save to backend:', e);
         }

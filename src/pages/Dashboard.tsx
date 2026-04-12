@@ -12,17 +12,18 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const isPublisher = role === 'publisher';
   const [activeTab, setActiveTab] = useState<string>('overview');
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
   useEffect(() => {
     if (isPublisher) {
       // Publisher: load sites
-      fetch('http://localhost:3001/api/publishers/sites')
+      fetch(`${API_URL}/api/publishers/sites`)
         .then(r => r.ok ? r.json() : [])
         .then(data => { setSites(Array.isArray(data) ? data : []); setLoading(false); })
         .catch(() => setLoading(false));
     } else {
       // Advertiser: load campaigns
-      fetch('http://localhost:3001/api/campaigns')
+      fetch(`${API_URL}/api/campaigns`)
         .then(r => r.json())
         .then(data => { setCampaigns(data); setLoading(false); })
         .catch(() => setLoading(false));
@@ -371,6 +372,41 @@ export default function Dashboard() {
                    <p className="text-muted-foreground font-medium">Запустите первую кампанию, чтобы Anora начала сбор аудитории.</p>
                 </div>
               )}
+            </div>
+          )}
+
+          {activeTab === 'settings' && (
+            <div className="max-w-2xl mx-auto space-y-8">
+              <h2 className="font-display text-3xl font-bold mb-8">Мой профиль</h2>
+              <div className="rounded-3xl border border-border bg-card p-8 shadow-sm">
+                <div className="flex items-center gap-6 mb-8">
+                  <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center text-primary text-3xl font-bold uppercase">
+                    {brandName ? brandName.charAt(0) : (isPublisher ? 'P' : 'A')}
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold">{brandName || (isPublisher ? 'Аккаунт Паблишера' : 'Аккаунт Рекламодателя')}</h3>
+                    <p className="text-muted-foreground uppercase text-[10px] font-bold tracking-widest mt-1">
+                      План: <span className="text-primary group-hover:text-primary">FREE TIER</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div>
+                    <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">Email</label>
+                    <input type="text" readOnly value="demo@anora.test" className="w-full rounded-xl border border-border bg-muted/50 px-4 py-3 text-sm focus:outline-none" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2 block">Роль</label>
+                    <input type="text" readOnly value={isPublisher ? 'Владелец площадок (Publisher)' : 'Рекламодатель (Advertiser)'} className="w-full rounded-xl border border-border bg-muted/50 px-4 py-3 text-sm focus:outline-none" />
+                  </div>
+                  <div className="pt-4 border-t border-border">
+                    <button className="rounded-xl border border-primary/20 text-primary bg-primary/5 px-6 py-3 text-sm font-bold w-full transition-colors hover:bg-primary/10">
+                      Обновить пароль
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </main>
