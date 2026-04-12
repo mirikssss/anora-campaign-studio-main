@@ -40,11 +40,33 @@ const dbPath = path.join(__dirname, 'db.json');
 
 // Synchronous JSON read/write helper
 function readDb() {
-  const data = fs.readFileSync(dbPath, 'utf-8');
-  return JSON.parse(data);
+  try {
+    if (!fs.existsSync(dbPath)) {
+      console.warn(`[DB] ${dbPath} not found, using default.`);
+      return { users: [], brands: [], campaigns: [], publisher_sites: [], notifications: [], ai_chats: [] };
+    }
+    const data = fs.readFileSync(dbPath, 'utf-8');
+    const parsed = JSON.parse(data);
+    // Ensure critical keys exist
+    if (!parsed.users) parsed.users = [];
+    if (!parsed.brands) parsed.brands = [];
+    if (!parsed.campaigns) parsed.campaigns = [];
+    if (!parsed.publisher_sites) parsed.publisher_sites = [];
+    if (!parsed.notifications) parsed.notifications = [];
+    if (!parsed.ai_chats) parsed.ai_chats = [];
+    return parsed;
+  } catch (e) {
+    console.error('[DB READ ERROR]', e);
+    return { users: [], brands: [], campaigns: [], publisher_sites: [], notifications: [], ai_chats: [] };
+  }
 }
+
 function writeDb(data: any) {
-  fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+  try {
+    fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+  } catch (e) {
+    console.warn('[DB WRITE ERROR] Filesystem might be read-only (common on Vercel). Data not persisted.', e.message);
+  }
 }
 
 // Ensure uploads dir exists
@@ -379,8 +401,12 @@ app.post('/api/publishers/sites', (req, res) => {
 });
 
 app.get('/api/publishers/sites', (req, res) => {
-  const db = readDb();
-  res.json(db.publisher_sites || []);
+  try {
+    const db = readDb();
+    res.json(db.publisher_sites || []);
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to fetch sites', details: e.message });
+  }
 });
 
 // SDK endpoint
@@ -422,12 +448,16 @@ app.get('/api/ads', (req, res) => {
 
 // GET site by id (polling)
 app.get('/api/publishers/sites/:id', (req, res) => {
-  const db = readDb();
-  const site = db.publisher_sites.find((s: any) => s.id === req.params.id);
-  if (site) {
-    res.json(site);
-  } else {
-    res.status(404).json({ error: 'Site not found' });
+  try {
+    const db = readDb();
+    const site = (db.publisher_sites || []).find((s: any) => s.id === req.params.id);
+    if (site) {
+      res.json(site);
+    } else {
+      res.status(404).json({ error: 'Site not found' });
+    }
+  } catch (e) {
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
