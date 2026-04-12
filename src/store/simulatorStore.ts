@@ -165,8 +165,9 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => ({
           addLog(`AUCTION: Победитель определен -> [${bestAd.id}] "${bestAd.name}" с метрикой eCPM/Score = ${Math.round(highestScore)}`, 'info');
           addLog(`SDK: Рендер баннера... (+1 Impression)`, 'warning');
           
-          // Update stats
+          // Update stats locally
           const clicked = Math.random() < bestAd.ctr;
+          const cost = (Math.random() * 0.05 + 0.02);
           
           set(state => ({
             currentAd: bestAd,
@@ -178,6 +179,15 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => ({
               return c;
             })
           }));
+
+          // Notify backend for the Notification Jobs monitoring engine
+          try {
+            fetch(`${API_URL}/api/campaigns/${bestAd.id}/metrics`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ impressions: 1, clicks: clicked ? 1 : 0, spent: cost })
+            }).catch(() => {});
+          } catch(e) {}
 
           if (clicked) {
             setTimeout(() => {

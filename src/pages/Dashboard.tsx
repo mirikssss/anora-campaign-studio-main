@@ -4,6 +4,7 @@ import { useCampaignStore } from '@/store/campaignStore';
 import Logo from '@/components/ui/Logo';
 import { useEffect, useState } from 'react';
 import Sidebar from '@/components/Sidebar';
+import NotificationsTab from '@/components/NotificationsTab';
 
 export default function Dashboard() {
   const { brandName, startNewCampaign, role } = useCampaignStore();
@@ -66,7 +67,7 @@ export default function Dashboard() {
               </h2>
             </div>
             <div className="flex items-center gap-4">
-              <button className="relative rounded-xl p-2 text-muted-foreground transition hover:bg-muted hover:text-foreground">
+              <button onClick={() => setActiveTab('notifications')} className="relative rounded-xl p-2 text-muted-foreground transition hover:bg-muted hover:text-foreground">
                 <Bell size={20} />
                 <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-primary border-2 border-background" />
               </button>
@@ -374,6 +375,8 @@ export default function Dashboard() {
               )}
             </div>
           )}
+
+          {activeTab === 'notifications' && <NotificationsTab />}
 
           {activeTab === 'settings' && (
             <div className="max-w-2xl mx-auto space-y-8">

@@ -426,6 +426,50 @@ app.get('/api/publishers/sites/:id', (req, res) => {
 
 // START
 const PORT = process.env.PORT || 3001;
+import { runNotificationJobs } from './notificationJobs.js';
+
+// --- NOTIFICATIONS & JOBS ---
+app.get('/api/notifications', (req, res) => {
+  const { user_id } = req.query;
+  const db = readDb();
+  const notes = (db.notifications || []).filter((n: any) => n.user_id === user_id).sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  res.json(notes);
+});
+
+app.post('/api/notifications/read', (req, res) => {
+  const { id } = req.body;
+  const db = readDb();
+  if (db.notifications) {
+    const target = db.notifications.find((n: any) => n.id === id);
+    if (target) {
+      target.is_read = true;
+      writeDb(db);
+    }
+  }
+  res.json({ success: true });
+});
+
+// Sync metrics from Simulator back to DB so notification rules work
+app.post('/api/campaigns/:id/metrics', (req, res) => {
+  const { id } = req.params;
+  const { impressions, clicks, spent } = req.body;
+  const db = readDb();
+  const c = db.campaigns.find((c: any) => c.id === id);
+  if (c) {
+    c.impressions = (c.impressions || 0) + (impressions || 0);
+    c.clicks = (c.clicks || 0) + (clicks || 0);
+    c.spent_total = (c.spent_total || 0) + (spent || 0);
+    writeDb(db);
+  }
+  res.json({ success: true });
+});
+
+// Job Monitor Layer (runs every 30 seconds)
+setInterval(() => {
+  console.log('[MONITOR LAYER] Running notification check jobs...');
+  runNotificationJobs();
+}, 30000); // 30s for demo purposes
+
 app.listen(PORT, () => {
   console.log(`Anora API running on http://localhost:${PORT}`);
 });
