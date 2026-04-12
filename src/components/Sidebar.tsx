@@ -11,6 +11,7 @@ import {
   Bell,
   Code2,
   Layout,
+  DollarSign,
 } from 'lucide-react';
 import { useCampaignStore } from '@/store/campaignStore';
 import Logo from './ui/Logo';
@@ -27,14 +28,15 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   const advertiserMenuItems = [
     { id: 'overview', label: 'Обзор', icon: LayoutDashboard },
     { id: 'campaigns', label: 'Кампании', icon: Megaphone },
-    { id: 'audiences', label: 'Аудитории', icon: Users },
     { id: 'analytics', label: 'Аналитика', icon: BarChart3 },
-    { id: 'geo', label: 'География', icon: Globe },
+    { id: 'monetization', label: 'Монетизация', icon: DollarSign },
+    { id: 'audiences', label: 'Аудитории', icon: Users },
   ];
 
   const publisherMenuItems = [
     { id: 'overview', label: 'Мои площадки', icon: Globe },
     { id: 'analytics', label: 'Статистика', icon: BarChart3 },
+    { id: 'monetization', label: 'Доходы', icon: DollarSign },
     { id: 'geo', label: 'Интеграция SDK', icon: Code2 },
   ];
 

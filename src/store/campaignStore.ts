@@ -9,6 +9,7 @@ export type AudienceType = 'broad' | 'targeted' | 'retargeting';
 export type Strategy = 'cpc' | 'cpm' | 'cpa';
 export type AnalysisStatus = 'good' | 'warning' | 'risk';
 export type AppScreen = 'role' | 'onboarding' | 'publisherOnboarding' | 'dashboard' | 'campaign' | 'analysis' | 'simulator';
+export type BudgetType = 'daily' | 'periodic' | 'monthly';
 
 export interface AnalysisCard {
   id: string;
@@ -61,6 +62,7 @@ interface CampaignState extends OnboardingState {
   interests: string;
   lifetimeBudget: string;
   dailyBudget: string;
+  budgetType: BudgetType;
   strategy: Strategy | null;
   startDate: Date | null;
   endDate: Date | null;
@@ -103,6 +105,7 @@ interface CampaignState extends OnboardingState {
   setInterests: (interests: string) => void;
   setLifetimeBudget: (budget: string) => void;
   setDailyBudget: (budget: string) => void;
+  setBudgetType: (type: BudgetType) => void;
   setStrategy: (strategy: Strategy | null) => void;
   setStartDate: (date: Date | null) => void;
   setEndDate: (date: Date | null) => void;
@@ -120,6 +123,9 @@ interface CampaignState extends OnboardingState {
   reset: () => void;
   canProceedCampaignStep: (step: number) => boolean;
   saveCampaignToBackend: () => Promise<void>;
+  totalImpressions: number;
+  updateTotalStats: (campaigns: any[]) => void;
+  applyOnboardingSettings: () => void;
 }
 
 export const useCampaignStore = create<CampaignState>()(
@@ -167,6 +173,21 @@ export const useCampaignStore = create<CampaignState>()(
       showAdvancedBudget: false,
       frequencyCap: '',
       deviceTargeting: 'all',
+      budgetType: 'daily',
+      totalImpressions: 0,
+
+      updateTotalStats: (campaigns) => {
+        const total = campaigns.reduce((acc, c) => acc + (c.impressions || 0), 0);
+        set({ totalImpressions: total });
+      },
+
+      applyOnboardingSettings: () => {
+        const s = get();
+        set({
+          audienceType: s.onboardingAudienceType || 'broad',
+          geos: s.defaultGeos || [],
+        });
+      },
 
       setScreen: (screen) => set({ screen }),
       setRole: (role) => set({ role }),
@@ -237,6 +258,7 @@ export const useCampaignStore = create<CampaignState>()(
       setInterests: (interests) => set({ interests }),
       setLifetimeBudget: (budget) => set({ lifetimeBudget: budget }),
       setDailyBudget: (budget) => set({ dailyBudget: budget }),
+      setBudgetType: (type) => set({ budgetType: type }),
       setStrategy: (strategy) => set({ strategy }),
       setStartDate: (date) => set({ startDate: date }),
       setEndDate: (date) => set({ endDate: date }),
@@ -452,17 +474,33 @@ export const useCampaignStore = create<CampaignState>()(
           return s.geos.length > 0 && !!s.audienceType;
         }
         if (step === 3) {
-          if (!s.strategy || !s.startDate || !s.endDate || !s.lifetimeBudget || !s.dailyBudget) return false;
-          return true;
+          if (!s.strategy || !s.startDate) return false;
+          if (s.budgetType === 'periodic') {
+            return !!(s.lifetimeBudget && Number(s.lifetimeBudget) > 0 && s.endDate);
+          }
+          if (s.budgetType === 'daily' || s.budgetType === 'monthly') {
+            return !!(s.dailyBudget && Number(s.dailyBudget) > 0);
+          }
+          return false;
         }
         return false;
       },
       saveCampaignToBackend: async () => {
         const s = get();
-        const budget = Number(s.lifetimeBudget) || 0;
         const industry = s.industry?.toLowerCase() || 'default';
         const objective = s.goal || 'traffic';
         
+        // Calculate effective budget for predictions
+        let budget = 0;
+        if (s.budgetType === 'periodic') {
+          budget = Number(s.lifetimeBudget) || 0;
+        } else if (s.startDate && s.endDate) {
+          const days = Math.max(1, Math.ceil((new Date(s.endDate).getTime() - new Date(s.startDate).getTime()) / (1000 * 3600 * 24)));
+          budget = (Number(s.dailyBudget) || 0) * days;
+        } else {
+          budget = (Number(s.dailyBudget) || 0) * 30; // Default to 30 days if no end date
+        }
+
         const benchmarks: Record<string, { ctr: number; cvr: number; cpm: number }> = {
           ecommerce: { ctr: 0.024, cvr: 0.031, cpm: 5.15 },
           saas: { ctr: 0.012, cvr: 0.05, cpm: 12.0 },
@@ -497,6 +535,7 @@ export const useCampaignStore = create<CampaignState>()(
         formData.append('objective', objective);
         formData.append('landing_url', s.landingUrl);
         formData.append('geo', JSON.stringify(s.geos));
+        formData.append('budget_type', s.budgetType);
         formData.append('budget_lifetime', s.lifetimeBudget.toString());
         formData.append('budget_daily', s.dailyBudget.toString());
         formData.append('strategy', s.strategy || 'cpc');

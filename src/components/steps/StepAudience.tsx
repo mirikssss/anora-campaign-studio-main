@@ -56,21 +56,42 @@ export default function StepAudience() {
           {audienceTypes.map((a) => {
             const Icon = a.icon;
             const selected = store.audienceType === a.id;
+            const isRetargeting = a.id === 'retargeting';
+            const lowImpressions = isRetargeting && store.totalImpressions < 1000;
+            
             return (
-              <motion.button
-                key={a.id}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => store.setAudienceType(a.id)}
-                className={`flex flex-col items-center gap-2 rounded-xl border p-4 transition-all duration-200 ${
-                  selected
-                    ? 'border-primary bg-accent shadow-soft'
-                    : 'border-border bg-card hover:border-primary/30'
-                }`}
-              >
-                <Icon size={20} className={selected ? 'text-primary' : 'text-muted-foreground'} />
-                <span className={`text-sm font-medium ${selected ? 'text-foreground' : 'text-muted-foreground'}`}>{a.label}</span>
-                <span className="text-xs text-muted-foreground">{a.desc}</span>
-              </motion.button>
+              <div key={a.id} className="relative group">
+                <motion.button
+                  whileTap={!lowImpressions ? { scale: 0.95 } : {}}
+                  onClick={() => {
+                    if (lowImpressions) return;
+                    store.setAudienceType(a.id);
+                    if (a.id === 'targeted') {
+                      store.applyOnboardingSettings();
+                    }
+                  }}
+                  disabled={lowImpressions}
+                  className={`flex w-full flex-col items-center gap-2 rounded-xl border p-4 transition-all duration-200 ${
+                    selected
+                      ? 'border-primary bg-accent shadow-soft'
+                      : lowImpressions 
+                        ? 'border-border bg-muted cursor-not-allowed opacity-60'
+                        : 'border-border bg-card hover:border-primary/30'
+                  }`}
+                >
+                  <Icon size={20} className={selected ? 'text-primary' : 'text-muted-foreground'} />
+                  <span className={`text-sm font-medium ${selected ? 'text-foreground' : 'text-muted-foreground'}`}>{a.label}</span>
+                  <span className="text-[10px] text-muted-foreground text-center leading-tight">{a.desc}</span>
+                </motion.button>
+                
+                {lowImpressions && (
+                  <div className="absolute top-full left-1/2 mt-2 w-48 -translate-x-1/2 z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="rounded-lg bg-foreground text-background p-2.5 text-[10px] font-bold leading-normal shadow-xl">
+                      Ретаргетинг доступен после того как ваши кампании наберут минимум 1000 показов. Мы сохраним аудиторию автоматически.
+                    </div>
+                  </div>
+                )}
+              </div>
             );
           })}
         </div>

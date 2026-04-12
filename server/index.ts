@@ -284,45 +284,45 @@ app.post('/api/analyze-campaign', async (req, res) => {
 app.post('/api/chat', async (req, res) => {
   const { cardId, userMessage, contextTitle, contextExplanation, previousMessages } = req.body;
   const apiKey = process.env.OPENROUTER_API_KEY;
+  console.log(`[AI CHAT] Request for card: ${cardId}`);
 
   if (!apiKey || apiKey.trim() === '') {
-    return res.status(500).json({ reply: 'OpenRouter API key is not configured.' });
+    return res.status(500).json({ reply: 'OpenRouter API key NOT found in environment.' });
   }
 
-  // Persist user message to DB
-  const db = readDb();
-  if (!db.ai_chats) db.ai_chats = [];
-  db.ai_chats.push({
-    id: uuidv4(),
-    cardId,
-    role: 'user',
-    text: userMessage,
-    created_at: new Date().toISOString()
-  });
-  writeDb(db);
+  // Persist user message to DB (Optional on Vercel)
+  try {
+    const db = readDb();
+    if (!db.ai_chats) db.ai_chats = [];
+    db.ai_chats.push({
+      id: uuidv4(),
+      cardId,
+      role: 'user',
+      text: userMessage,
+      created_at: new Date().toISOString()
+    });
+    writeDb(db);
+  } catch (e) { console.warn("DB write failed (likely Vercel readonly FS)"); }
 
-  // Format messages for LLM
-  const systemPrompt = `You are an AI assistant for Anora Campaign Studio. A user is discussing an optimization recommendation.
-  Recommendation Title: ${contextTitle}
-  Recommendation Explanation: ${contextExplanation}
-  Respond in Russian. CRITICAL: Keep your response EXTREMELY short and concise (maximum 2-3 short sentences). Do not use long paragraphs or lists. Get straight to the point.`;
+  const systemPrompt = `You are an AI assistant for Anora Campaign Studio.
+  Context: ${contextTitle} - ${contextExplanation}.
+  Respond in Russian. CRITICAL: 1-2 short sentences only. No lists.`;
 
   const messagesPayload = [
     { role: 'system', content: systemPrompt },
-    ...previousMessages.map((m: any) => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text })),
+    ...previousMessages.slice(-4).map((m: any) => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text })),
     { role: 'user', content: userMessage }
   ];
 
-  const modelsToTry = [
-    "google/gemma-4-31b-it:free",
-    "openai/gpt-oss-120b:free",
-    "google/gemma-2-9b-it:free"
-  ];
-
-  let replyText = 'Не удалось получить ответ ИИ (превышены лимиты API).';
+  const modelsToTry = ["liquid/lfm-40b:free", "google/gemma-2-9b-it:free"];
+  let replyText = 'ИИ временно недоступен. Попробуйте позже.';
 
   for (const model of modelsToTry) {
+    console.log(`[AI CHAT] Trying model: ${model}`);
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+
       const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -331,32 +331,36 @@ app.post('/api/chat', async (req, res) => {
           "HTTP-Referer": "https://anora.io",
           "X-Title": "Anora Campaign Studio"
         },
-        body: JSON.stringify({
-          model: model,
-          messages: messagesPayload,
-          max_tokens: 300
-        })
+        body: JSON.stringify({ model, messages: messagesPayload, max_tokens: 100 }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         const data = await response.json();
         replyText = data.choices?.[0]?.message?.content || replyText;
-        break; // Stop parsing if success
+        console.log(`[AI CHAT] Success with ${model}`);
+        break; 
+      } else {
+        console.warn(`[AI CHAT] Model ${model} returned ${response.status}`);
       }
-    } catch (e) {
-      continue;
+    } catch (err) {
+      console.error(`[AI CHAT] Model ${model} error or timeout`);
     }
   }
 
-  // Persist AI message to DB
-  db.ai_chats.push({
-    id: uuidv4(),
-    cardId,
-    role: 'ai',
-    text: replyText,
-    created_at: new Date().toISOString()
-  });
-  writeDb(db);
+  try {
+    const db = readDb();
+    db.ai_chats.push({
+      id: uuidv4(),
+      cardId,
+      role: 'ai',
+      text: replyText,
+      created_at: new Date().toISOString()
+    });
+    writeDb(db);
+  } catch (e) {}
 
   res.json({ reply: replyText });
 });

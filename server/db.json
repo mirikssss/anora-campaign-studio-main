@@ -145,6 +145,18 @@
       "default_targeting": {},
       "default_strategy": "cpc",
       "avg_order_value": null
+    },
+    {
+      "id": "1640f327-27c8-42b8-b2ed-760c2b632dd6",
+      "user_id": "7d425618-a898-4cb7-b0b3-0d7e643badca",
+      "name": "nike",
+      "industry": "E-commerce",
+      "website": "",
+      "default_objective": "traffic",
+      "default_geo": [],
+      "default_targeting": {},
+      "default_strategy": "cpc",
+      "avg_order_value": null
     }
   ],
   "campaigns": [

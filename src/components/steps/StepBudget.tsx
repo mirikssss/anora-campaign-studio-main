@@ -27,16 +27,19 @@ export default function StepBudget() {
   const startBeforeToday = startDate && startDate < today;
   const endBeforeStart = startDate && endDate && endDate <= startDate;
 
-  if (store.lifetimeBudget && store.dailyBudget && startDate && endDate) {
-    const life = Number(store.lifetimeBudget);
-    const daily = Number(store.dailyBudget);
-    if (life > 0 && daily > 0) {
-      daysToExhaust = Math.ceil(life / daily);
-      const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
-      duration = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      if (daysToExhaust < duration) {
-        budgetExhaustionWarning = true;
-      }
+  if (startDate && endDate) {
+    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+    duration = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (store.budgetType === 'daily' && store.dailyBudget && store.lifetimeBudget) {
+       const life = Number(store.lifetimeBudget);
+       const daily = Number(store.dailyBudget);
+       if (life > 0 && daily > 0) {
+         daysToExhaust = Math.ceil(life / daily);
+         if (daysToExhaust < duration) {
+           budgetExhaustionWarning = true;
+         }
+       }
     }
   }
 
@@ -48,27 +51,65 @@ export default function StepBudget() {
       transition={{ duration: 0.3 }}
       className="space-y-6"
     >
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-foreground">Бюджет на всё время ($)</label>
+      <div className="space-y-4">
+        <label className="block text-sm font-medium text-foreground">Политика бюджета</label>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { id: 'daily', label: 'Дневной', desc: 'Лимит на сутки' },
+            { id: 'periodic', label: 'За период', desc: 'На всю кампанию' },
+            { id: 'monthly', label: 'Месячный', desc: 'Лимит на месяц' },
+          ].map((policy) => {
+            const selected = store.budgetType === policy.id;
+            return (
+              <motion.button
+                key={policy.id}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => store.setBudgetType(policy.id as any)}
+                className={`flex flex-col items-center gap-1 rounded-xl border p-3 transition-all duration-200 ${
+                  selected
+                    ? 'border-primary bg-primary/5 text-primary shadow-soft'
+                    : 'border-border bg-card text-muted-foreground hover:border-primary/30'
+                }`}
+              >
+                <span className="text-sm font-bold">{policy.label}</span>
+                <span className="text-[10px] opacity-70">{policy.desc}</span>
+              </motion.button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4">
+        <motion.div
+          key={store.budgetType}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <label className="mb-1.5 block text-sm font-medium text-foreground">
+            {store.budgetType === 'daily' && 'Дневной бюджет ($)'}
+            {store.budgetType === 'periodic' && 'Общий бюджет на период ($)'}
+            {store.budgetType === 'monthly' && 'Ежемесячный бюджет ($)'}
+          </label>
           <input
             type="number"
-            value={store.lifetimeBudget}
-            onChange={(e) => store.setLifetimeBudget(e.target.value)}
-            placeholder="500"
+            value={store.budgetType === 'periodic' ? store.lifetimeBudget : store.dailyBudget}
+            onChange={(e) => {
+              if (store.budgetType === 'periodic') {
+                store.setLifetimeBudget(e.target.value);
+              } else {
+                store.setDailyBudget(e.target.value);
+              }
+            }}
+            placeholder={store.budgetType === 'periodic' ? '500' : '25'}
             className="w-full rounded-xl border border-input bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
           />
-        </div>
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-foreground">Дневной бюджет ($)</label>
-          <input
-            type="number"
-            value={store.dailyBudget}
-            onChange={(e) => store.setDailyBudget(e.target.value)}
-            placeholder="25"
-            className="w-full rounded-xl border border-input bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
-          />
-        </div>
+          <p className="mt-2 text-[11px] text-muted-foreground font-medium">
+            {store.budgetType === 'daily' && 'Система будет стремиться тратить не более этой суммы каждые 24 часа.'}
+            {store.budgetType === 'periodic' && 'Этот бюджет будет равномерно распределен на все дни кампании.'}
+            {store.budgetType === 'monthly' && 'Кампания будет автоматически продлеваться каждый месяц с этим лимитом.'}
+          </p>
+        </motion.div>
       </div>
 
       <div>
@@ -276,6 +317,21 @@ export default function StepBudget() {
               <div className="text-sm">
                 <p className="font-semibold">Требуется пиксель конверсии</p>
                 <p className="mt-1 opacity-90">Сложно оптимизировать CPA без сигнала о конверсии. Убедитесь, что пиксель установлен на вашей посадочной странице.</p>
+              </div>
+            </motion.div>
+          )}
+
+          {store.goal === 'awareness' && store.strategy === 'cpa' && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="flex items-start gap-3 rounded-xl border border-warning/50 bg-warning/10 p-4 text-warning"
+            >
+              <AlertTriangle className="mt-0.5 shrink-0" size={18} />
+              <div className="text-sm">
+                <p className="font-semibold">Несоответствие стратегии и цели</p>
+                <p className="mt-1 opacity-90">CPA работает лучше всего для целей конверсии, а не охвата (Awareness). Рекомендуем рассмотреть CPM.</p>
               </div>
             </motion.div>
           )}

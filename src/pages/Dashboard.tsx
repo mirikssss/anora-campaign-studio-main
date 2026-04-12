@@ -5,9 +5,11 @@ import Logo from '@/components/ui/Logo';
 import { useEffect, useState } from 'react';
 import Sidebar from '@/components/Sidebar';
 import NotificationsTab from '@/components/NotificationsTab';
+import AnalyticsTab from '@/components/AnalyticsTab';
+import MonetizationTab from '@/components/MonetizationTab';
 
 export default function Dashboard() {
-  const { brandName, startNewCampaign, role } = useCampaignStore();
+  const { brandName, startNewCampaign, role, updateTotalStats } = useCampaignStore();
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [sites, setSites] = useState<any[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -34,6 +36,7 @@ export default function Dashboard() {
       .then(([cms, notes]) => {
         setCampaigns(cms);
         setNotifications(notes);
+        updateTotalStats(cms); // Sync to store for targeting rules
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -41,12 +44,15 @@ export default function Dashboard() {
   }, [isPublisher, API_URL]);
 
   const totalSpent = campaigns.reduce((acc, c) => acc + (c.spent_total || 0), 0);
+  const totalImpressions = campaigns.reduce((acc, c) => acc + (c.impressions || 0), 0);
+  const totalClicks = campaigns.reduce((acc, c) => acc + (c.clicks || 0), 0);
+  const avgCtr = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
 
   // ---- Advertiser metrics ----
   const advertiserMetrics = [
     { label: 'Расход', value: `$${totalSpent.toFixed(2)}` },
-    { label: 'Показы', value: '0' },
-    { label: 'Средний CTR', value: '0.0%' },
+    { label: 'Показы', value: totalImpressions.toLocaleString() },
+    { label: 'Средний CTR', value: `${avgCtr.toFixed(2)}%` },
   ];
 
   // ---- Publisher metrics ----
@@ -344,39 +350,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          {activeTab === 'analytics' && (
-            <div className="space-y-8">
-              <h2 className="font-display text-3xl font-bold mb-8">
-                {isPublisher ? 'Статистика площадок' : 'Сквозная аналитика'}
-              </h2>
-              <div className="grid gap-8 md:grid-cols-2">
-                <div className="rounded-3xl border border-border bg-card p-10 min-h-[400px] shadow-sm flex flex-col justify-center items-center text-center">
-                  <div className="h-20 w-20 rounded-3xl bg-primary/5 flex items-center justify-center mb-6">
-                    <BarChart3 size={40} className="text-primary opacity-40" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">{isPublisher ? 'Доход по дням' : 'Распределение расходов'}</h3>
-                  <p className="text-muted-foreground text-sm max-w-xs font-medium">
-                    {isPublisher
-                      ? 'После накопления показов здесь появится график дохода по дням.'
-                      : `После накопления данных здесь появится автоматическая сегментация по ${campaigns.length} кампаниям.`
-                    }
-                  </p>
-                </div>
-                <div className="rounded-3xl border border-border bg-card p-10 min-h-[400px] shadow-sm flex flex-col justify-center items-center text-center">
-                  <div className="h-20 w-20 rounded-3xl bg-success/5 flex items-center justify-center mb-6">
-                    {isPublisher ? <Eye size={40} className="text-success opacity-40" /> : <Users size={40} className="text-success opacity-40" />}
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">{isPublisher ? 'Показы по форматам' : 'Анализ аудитории'}</h3>
-                  <p className="text-muted-foreground text-sm max-w-xs font-medium">
-                    {isPublisher
-                      ? 'Сравнение эффективности размещений по форматам баннеров.'
-                      : 'Мы объединяем данные о конверсиях и интересах ваших пользователей в единый портрет.'
-                    }
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
+
 
           {activeTab === 'audiences' && !isPublisher && (
             <div className="space-y-8">
@@ -415,6 +389,8 @@ export default function Dashboard() {
           )}
 
           {activeTab === 'notifications' && <NotificationsTab />}
+          {activeTab === 'analytics' && <AnalyticsTab />}
+          {activeTab === 'monetization' && <MonetizationTab />}
 
           {activeTab === 'settings' && (
             <div className="max-w-2xl mx-auto space-y-8">
