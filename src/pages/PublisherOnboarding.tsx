@@ -168,6 +168,7 @@ function DeviceCard({ opt, selected, onClick }: { opt: typeof deviceOptions[0]; 
 export default function PublisherOnboarding() {
   const { setScreen } = useCampaignStore();
   const [step, setStep] = useState(0);
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
   
   // Step 1
   const [domain, setDomain] = useState('');
@@ -270,7 +271,7 @@ export default function PublisherOnboarding() {
       setStep(s => s + 1);
     } else if (step === 2) {
       try {
-        const res = await fetch('http://localhost:3001/api/publishers/sites', {
+        const res = await fetch(`${API_URL}/api/publishers/sites`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -346,7 +347,7 @@ export default function PublisherOnboarding() {
 
     // Register SDK
     try {
-      const res = await fetch('http://localhost:3001/sdk/register', {
+      const res = await fetch(`${API_URL}/sdk/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ site_id: siteId })

@@ -7,8 +7,11 @@ import AnalysisScreen from '@/pages/AnalysisScreen';
 import PublisherOnboarding from '@/pages/PublisherOnboarding';
 import PublisherSimulator from '@/pages/PublisherSimulator';
 
+import { useNotifications } from '@/hooks/useNotifications';
+
 export default function Index() {
   const { screen } = useCampaignStore();
+  useNotifications();
 
   switch (screen) {
     case 'onboarding':

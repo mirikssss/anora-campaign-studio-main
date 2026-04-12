@@ -9,13 +9,17 @@
     return;
   }
 
+  // Determine API host from script src or manual override
+  const API_HOST = window.ANORA_API_URL || scriptTag.src.replace('/sdk.js', '');
+  console.log("Anora SDK: Using API Host", API_HOST);
+
   // Helper to fetch and inject ads
   async function loadAds() {
     const slots = document.querySelectorAll('.anora-ad-slot');
     
     // Notify server that SDK is active on this site
     try {
-      await fetch('http://localhost:3001/sdk/register', {
+      await fetch(`${API_HOST}/sdk/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ site_id: siteId })
@@ -28,7 +32,7 @@
       const format = slot.dataset.format || '300x250';
       
       try {
-        const response = await fetch(`http://localhost:3001/api/ads?siteId=${siteId}&format=${format}`);
+        const response = await fetch(`${API_HOST}/api/ads?siteId=${siteId}&format=${format}`);
         if (!response.ok) throw new Error("No ad found");
         
         const ad = await response.json();

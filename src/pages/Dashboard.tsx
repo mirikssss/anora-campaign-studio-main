@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, BarChart3, Users, MousePointerClick, MoreHorizontal, Copy, Trash, Megaphone, User, Bell, Globe, Code2, Eye, DollarSign, TrendingUp, ExternalLink } from 'lucide-react';
+import { Plus, BarChart3, Users, MousePointerClick, MoreHorizontal, Copy, Trash, Megaphone, User, Bell, Globe, Code2, Eye, DollarSign, TrendingUp, ExternalLink, AlertTriangle } from 'lucide-react';
 import { useCampaignStore } from '@/store/campaignStore';
 import Logo from '@/components/ui/Logo';
 import { useEffect, useState } from 'react';
@@ -10,12 +10,15 @@ export default function Dashboard() {
   const { brandName, startNewCampaign, role } = useCampaignStore();
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [sites, setSites] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const isPublisher = role === 'publisher';
   const [activeTab, setActiveTab] = useState<string>('overview');
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
   useEffect(() => {
+    const mockUserId = isPublisher ? 'publisher-mock-id' : 'bab1dd90-c5e3-415d-ac93-ef0020380c05';
+    
     if (isPublisher) {
       // Publisher: load sites
       fetch(`${API_URL}/api/publishers/sites`)
@@ -23,13 +26,19 @@ export default function Dashboard() {
         .then(data => { setSites(Array.isArray(data) ? data : []); setLoading(false); })
         .catch(() => setLoading(false));
     } else {
-      // Advertiser: load campaigns
-      fetch(`${API_URL}/api/campaigns`)
-        .then(r => r.json())
-        .then(data => { setCampaigns(data); setLoading(false); })
-        .catch(() => setLoading(false));
+      // Advertiser: load campaigns & notifications
+      Promise.all([
+        fetch(`${API_URL}/api/campaigns`).then(r => r.json()),
+        fetch(`${API_URL}/api/notifications?user_id=${mockUserId}`).then(r => r.json())
+      ])
+      .then(([cms, notes]) => {
+        setCampaigns(cms);
+        setNotifications(notes);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
     }
-  }, [isPublisher]);
+  }, [isPublisher, API_URL]);
 
   const totalSpent = campaigns.reduce((acc, c) => acc + (c.spent_total || 0), 0);
 
@@ -280,27 +289,56 @@ export default function Dashboard() {
               </div>
               {loading ? <p className="animate-pulse">Загрузка...</p> : (
                 <div className="space-y-4">
-                  {campaigns.map((c: any) => (
-                    <div key={c.id} className="flex items-center justify-between rounded-2xl border border-border bg-card p-6 shadow-sm hover:shadow-md transition-all">
-                      <div className="flex items-center gap-4 min-w-0">
-                         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-muted">
-                            <Megaphone size={22} className="text-muted-foreground" />
-                         </div>
-                         <div className="min-w-0">
-                            <h4 className="font-bold text-lg truncate">{c.name}</h4>
-                            <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest mt-0.5">
-                               {c.objective} • ${c.budget_lifetime} • {c.strategy?.toUpperCase()}
-                            </p>
-                         </div>
-                      </div>
-                      <div className="flex items-center gap-6">
-                         <div className="px-4 py-1.5 bg-muted rounded-xl text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground">{c.status}</div>
-                         <button className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                            <MoreHorizontal size={18} />
-                         </button>
-                      </div>
-                    </div>
-                  ))}
+                    {campaigns.map((c: any) => {
+                      const campaignNotes = notifications.filter((n: any) => n.campaign_id === c.id && !n.is_read);
+                      
+                      return (
+                        <div key={c.id} className="group overflow-hidden rounded-2xl border border-border bg-card shadow-sm hover:shadow-md transition-all">
+                          <div className="flex items-center justify-between p-6">
+                            <div className="flex items-center gap-4 min-w-0">
+                               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-muted">
+                                  <Megaphone size={22} className="text-muted-foreground" />
+                               </div>
+                               <div className="min-w-0">
+                                  <h4 className="font-bold text-lg truncate">{c.name}</h4>
+                                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest mt-0.5">
+                                     {c.objective} • ${c.budget_lifetime} • {c.strategy?.toUpperCase()}
+                                  </p>
+                               </div>
+                            </div>
+                            <div className="flex items-center gap-6">
+                               <div className="px-4 py-1.5 bg-muted rounded-xl text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground">{c.status}</div>
+                               <button className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                                  <MoreHorizontal size={18} />
+                               </button>
+                            </div>
+                          </div>
+
+                          {/* Inline alerts for WOW effect */}
+                          {campaignNotes.length > 0 && (
+                            <div className="px-6 pb-6 pt-0 space-y-2">
+                              {campaignNotes.map((n: any) => (
+                                <div key={n.id} className={`flex items-start gap-2 p-3 rounded-xl border border-dashed transition-all ${
+                                  n.severity === 'critical' ? 'bg-destructive/5 border-destructive/20 text-destructive' : 'bg-warning/5 border-warning/20 text-warning-foreground'
+                                }`}>
+                                  <AlertTriangle size={14} className="mt-0.5 shrink-0" />
+                                  <div className="flex-1">
+                                    <p className="text-xs font-bold leading-tight">{n.title}</p>
+                                    <p className="text-[10px] opacity-80 mt-1 line-clamp-2">{n.message}</p>
+                                  </div>
+                                  <button 
+                                    onClick={() => setActiveTab('notifications')}
+                                    className="text-[10px] font-bold underline whitespace-nowrap"
+                                  >
+                                    Исправить
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                 </div>
               )}
             </div>

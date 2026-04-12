@@ -186,7 +186,7 @@ export const useCampaignStore = create<CampaignState>()(
       finishOnboarding: async () => {
         const s = get();
         try {
-          const authRes = await fetch('http://localhost:3001/api/auth/login', {
+          const authRes = await fetch(`${API_URL}/api/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: `${s.brandName.replace(/\s+/g, '').toLowerCase() || 'user'}@example.com`, password: '123' })
@@ -194,7 +194,7 @@ export const useCampaignStore = create<CampaignState>()(
           const authData = await authRes.json();
           const userId = authData.user?.id || '00000000-0000-0000-0000-000000000000';
 
-          await fetch('http://localhost:3001/api/brands', {
+          await fetch(`${API_URL}/api/brands`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

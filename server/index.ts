@@ -14,6 +14,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const API_URL = process.env.API_URL || ''; 
+// On Vercel, if backend is on same domain, leave empty or set to full URL
+
 app.get('/', (req, res) => {
   res.send('Anora Backend API is running successfully! 🚀');
 });
@@ -407,7 +410,7 @@ app.get('/api/ads', (req, res) => {
 
   res.json({
     id: randomAd.id,
-    bannerUrl: `http://localhost:3001${randomAd.banner_url}`,
+    bannerUrl: `${API_URL}${randomAd.banner_url}`,
     link: randomAd.landing_url,
     format: format || '300x250'
   });
@@ -430,6 +433,7 @@ import { runNotificationJobs } from './notificationJobs.js';
 
 // --- NOTIFICATIONS & JOBS ---
 app.get('/api/notifications', (req, res) => {
+  runNotificationJobs(); // Critical for Vercel: trigger logic on request
   const { user_id } = req.query;
   const db = readDb();
   const notes = (db.notifications || []).filter((n: any) => n.user_id === user_id).sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
@@ -464,12 +468,14 @@ app.post('/api/campaigns/:id/metrics', (req, res) => {
   res.json({ success: true });
 });
 
-// Job Monitor Layer (runs every 30 seconds)
-setInterval(() => {
-  console.log('[MONITOR LAYER] Running notification check jobs...');
-  runNotificationJobs();
-}, 30000); // 30s for demo purposes
+// Monitor layer is now triggered via GET /api/notifications for serverless compatibility
 
-app.listen(PORT, () => {
-  console.log(`Anora API running on http://localhost:${PORT}`);
-});
+
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Anora API running on http://localhost:${PORT}`);
+  });
+}
+
+// Required for Vercel serverless deployment
+export default app;

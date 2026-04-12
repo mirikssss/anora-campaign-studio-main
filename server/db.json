@@ -49,6 +49,16 @@
       "banner_gen_used": 0,
       "created_at": "2026-04-12T02:40:07.375Z",
       "last_login_at": "2026-04-12T02:40:07.375Z"
+    },
+    {
+      "id": "c98bd636-66e6-4ecf-a730-d58a3fe8b684",
+      "email": "sanjar@example.com",
+      "password_hash": "mock-hash",
+      "role": "advertiser",
+      "plan": "free",
+      "banner_gen_used": 0,
+      "created_at": "2026-04-12T05:15:33.571Z",
+      "last_login_at": "2026-04-12T05:15:33.572Z"
     }
   ],
   "brands": [
@@ -123,6 +133,18 @@
       "default_targeting": {},
       "default_strategy": "cpc",
       "avg_order_value": null
+    },
+    {
+      "id": "7db82189-087b-4325-a263-46e4c67ca627",
+      "user_id": "c98bd636-66e6-4ecf-a730-d58a3fe8b684",
+      "name": "SANJAR",
+      "industry": "Гейминг",
+      "website": "",
+      "default_objective": "traffic",
+      "default_geo": [],
+      "default_targeting": {},
+      "default_strategy": "cpc",
+      "avg_order_value": null
     }
   ],
   "campaigns": [
@@ -146,11 +168,11 @@
       "schedule_hours": null,
       "frequency_cap": "3",
       "score_payload": null,
-      "spent_total": 0.042429976223531264,
+      "spent_total": 0.07365819357292917,
       "created_at": "2026-04-11T22:20:26.988Z",
       "updated_at": "2026-04-11T22:20:26.990Z",
       "banner_url": "/uploads/6c707ead-e6d8-4b72-98ce-1dd8c495199a.jpg",
-      "impressions": 1,
+      "impressions": 2,
       "clicks": 0
     },
     {
@@ -176,11 +198,11 @@
       "schedule_hours": null,
       "frequency_cap": "3",
       "score_payload": null,
-      "spent_total": 0.03546848538523096,
+      "spent_total": 0.10534615913860523,
       "created_at": "2026-04-11T22:47:42.057Z",
       "updated_at": "2026-04-11T22:47:42.057Z",
       "banner_url": "/uploads/e0dc646e-aa64-47c8-877a-c2cf8b0a241c.png",
-      "impressions": 1,
+      "impressions": 2,
       "clicks": 0
     },
     {
@@ -206,11 +228,11 @@
       "schedule_hours": null,
       "frequency_cap": "3",
       "score_payload": null,
-      "spent_total": 0.041682362510423815,
+      "spent_total": 0.10718703796970235,
       "created_at": "2026-04-11T22:47:52.651Z",
       "updated_at": "2026-04-11T22:47:52.651Z",
       "banner_url": "/uploads/d0a0158c-8837-4d3f-b5ce-f23fab8df68b.png",
-      "impressions": 1,
+      "impressions": 2,
       "clicks": 0
     },
     {
@@ -369,10 +391,12 @@
           "узбекистан"
         ]
       },
-      "spent_total": 0,
+      "spent_total": 0.03622950887774972,
       "created_at": "2026-04-12T01:59:12.633Z",
       "updated_at": "2026-04-12T01:59:12.633Z",
-      "banner_url": "/uploads/3ce25607-9a45-4aa9-80b9-9f4ad5af85a5.jpeg"
+      "banner_url": "/uploads/3ce25607-9a45-4aa9-80b9-9f4ad5af85a5.jpeg",
+      "impressions": 1,
+      "clicks": 0
     },
     {
       "id": "20d1f083-45ae-4f8f-888a-cd014ebe2815",
@@ -453,6 +477,46 @@
       "created_at": "2026-04-12T02:22:29.622Z",
       "updated_at": "2026-04-12T02:22:29.622Z",
       "banner_url": null
+    },
+    {
+      "id": "4b7ffe94-7e97-412f-b066-d7c855803167",
+      "brand_id": "00000000-0000-0000-0000-000000000000",
+      "name": "ПРОДАЖА НОУТОВ",
+      "status": "active",
+      "objective": "retention",
+      "landing_url": "https://anoraaaa.vercel.app/",
+      "ad_format": "auto",
+      "geo": [
+        "Узбекистан"
+      ],
+      "targeting": {},
+      "budget_lifetime": "100",
+      "budget_daily": "50",
+      "strategy": "cpc",
+      "start_date": "2026-04-11T19:00:00.000Z",
+      "end_date": "2026-04-12T19:00:00.000Z",
+      "schedule_hours": null,
+      "frequency_cap": "3",
+      "score_payload": {
+        "predicted_ctr": 0.015,
+        "predicted_cvr": 0.02,
+        "predicted_impressions": 22222,
+        "predicted_clicks": 333,
+        "predicted_cpm": 4.5,
+        "predicted_conversions": 6,
+        "predicted_revenue": 300,
+        "effectiveness_score": 0.01,
+        "objective": "retention",
+        "target_segments": [
+          "all",
+          "18-65",
+          "узбекистан"
+        ]
+      },
+      "spent_total": 0,
+      "created_at": "2026-04-12T05:19:40.425Z",
+      "updated_at": "2026-04-12T05:19:40.425Z",
+      "banner_url": "/uploads/565aa19f-0b34-4a05-a267-0eadb8029b7f.jpeg"
     }
   ],
   "publisher_sites": [
@@ -569,6 +633,25 @@
       ],
       "status": "active",
       "created_at": "2026-04-12T02:36:09.924Z"
+    },
+    {
+      "id": "81c40868-0317-4585-b6a7-d6ce3408bea3",
+      "domain": "nike.co",
+      "category": "news",
+      "language": "uz",
+      "geo": "uzbekistan",
+      "traffic": "100k+",
+      "deviceSplit": "mixed",
+      "contentType": "video",
+      "slots": [
+        {
+          "format": "auto",
+          "location": "header",
+          "quantity": "1"
+        }
+      ],
+      "status": "active",
+      "created_at": "2026-04-12T05:23:36.202Z"
     }
   ],
   "ai_chats": [
