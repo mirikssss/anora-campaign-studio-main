@@ -522,6 +522,25 @@
       ],
       "status": "active",
       "created_at": "2026-04-12T01:51:10.690Z"
+    },
+    {
+      "id": "287343b2-9880-4793-a0bf-8ff255aa7fe3",
+      "domain": "pornhub.com",
+      "category": "news",
+      "language": "ru",
+      "geo": "uzbekistan",
+      "traffic": "100k+",
+      "deviceSplit": "desktop_heavy",
+      "contentType": "video",
+      "slots": [
+        {
+          "format": "300x250",
+          "location": "inline",
+          "quantity": "1"
+        }
+      ],
+      "status": "active",
+      "created_at": "2026-04-12T02:36:09.924Z"
     }
   ],
   "ai_chats": [
