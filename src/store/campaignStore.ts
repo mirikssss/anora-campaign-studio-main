@@ -298,6 +298,17 @@ export const useCampaignStore = create<CampaignState>()(
         set({ analyzing: true, screen: 'analysis' });
         
         try {
+          // Convert banner file to base64 if it exists
+          let bannerBase64: string | null = null;
+          if (s.uploadedFile) {
+            bannerBase64 = await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = () => resolve(reader.result as string);
+              reader.onerror = reject;
+              reader.readAsDataURL(s.uploadedFile!);
+            });
+          }
+
           const res = await fetch(`${API_URL}/api/analyze-campaign`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -311,16 +322,13 @@ export const useCampaignStore = create<CampaignState>()(
                 dailyBudget: s.dailyBudget,
                 lifetimeBudget: s.lifetimeBudget,
                 deviceTargeting: s.deviceTargeting
-              }
+              },
+              bannerBase64
             })
           });
           
           if (!res.ok) throw new Error('AI analysis failed');
           const data = await res.json();
-          
-          // data.analysis will be a string from OpenRouter
-          // For now, we'll parse it into a structured summary and one big card
-          // In a real app we'd prompt the AI for JSON specifically
           
           set({
             analyzing: false,

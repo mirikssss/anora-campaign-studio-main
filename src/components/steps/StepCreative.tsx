@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useCampaignStore } from '@/store/campaignStore';
-import { Upload, Sparkles, X, Image, AlertTriangle } from 'lucide-react';
+import { Upload, Sparkles, X, Image, AlertTriangle, Loader2, ShieldCheck } from 'lucide-react';
 import { useCallback, useState } from 'react';
 
 export default function StepCreative() {
@@ -8,13 +8,65 @@ export default function StepCreative() {
   const [violationError, setViolationError] = useState('');
   const [dragOver, setDragOver] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
+  const [isValidating, setIsValidating] = useState(false);
 
-  const handleFile = useCallback((file: File) => {
-    store.setUploadedFile(file);
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+  const handleFile = useCallback(async (file: File) => {
+    setViolationError('');
+    setIsValidating(true);
+
+    // Create preview immediately for UX
     const reader = new FileReader();
-    reader.onload = (e) => setPreview(e.target?.result as string);
+    reader.onload = async (e) => {
+      const base64 = e.target?.result as string;
+      setPreview(base64);
+
+      // Validate banner content via AI moderation
+      try {
+        const res = await fetch(`${API_URL}/api/validate-banner`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bannerBase64: base64 })
+        });
+
+        if (res.ok) {
+          const result = await res.json();
+          if (!result.valid) {
+            // Banner rejected by moderation
+            const categoryLabels: Record<string, string> = {
+              gambling: '🎰 Азартные игры / Казино',
+              adult: '🔞 Контент для взрослых',
+              violence: '💀 Насилие',
+              drugs: '💊 Наркотики / Запрещённые вещества',
+              weapons: '🔫 Оружие',
+              hate_speech: '⚠️ Разжигание ненависти',
+              scam: '🚫 Мошенничество / Скам',
+            };
+            const categoryLabel = categoryLabels[result.category] || `⛔ ${result.category}`;
+            setViolationError(
+              `Модерация отклонила баннер.\n\nКатегория: ${categoryLabel}\nПричина: ${result.reason}\n\nЗагрузите другое изображение, соответствующее правилам рекламной платформы.`
+            );
+            setPreview(null);
+            store.setUploadedFile(null);
+            setIsValidating(false);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('Banner validation API unavailable, allowing upload:', err);
+      }
+
+      // Banner passed moderation or moderation unavailable
+      store.setUploadedFile(file);
+      setIsValidating(false);
+    };
+    reader.onerror = () => {
+      setIsValidating(false);
+      setViolationError('Не удалось прочитать файл. Попробуйте другой формат.');
+    };
     reader.readAsDataURL(file);
-  }, [store]);
+  }, [store, API_URL]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -78,9 +130,9 @@ export default function StepCreative() {
             onDragLeave={() => setDragOver(false)}
             onDrop={handleDrop}
             className={`relative flex min-h-[200px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed transition-all duration-200 ${
-              dragOver ? 'border-primary bg-accent' : 'border-border hover:border-primary/40'
+              dragOver ? 'border-primary bg-accent' : isValidating ? 'border-primary/60 bg-primary/5' : 'border-border hover:border-primary/40'
             }`}
-            onClick={() => document.getElementById('file-upload')?.click()}
+            onClick={() => !isValidating && document.getElementById('file-upload')?.click()}
           >
             <input
               id="file-upload"
@@ -89,24 +141,53 @@ export default function StepCreative() {
               className="hidden"
               onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
             />
-            {preview ? (
+            {isValidating ? (
+              <div className="flex flex-col items-center gap-3 p-6">
+                {preview && (
+                  <img src={preview} alt="Validating" className="max-h-28 rounded-lg object-contain opacity-50" />
+                )}
+                <div className="flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2">
+                  <Loader2 size={16} className="animate-spin text-primary" />
+                  <span className="text-sm font-medium text-primary">ИИ проверяет контент баннера...</span>
+                </div>
+                <p className="text-xs text-muted-foreground text-center">Автоматическая модерация: проверка на запрещённый контент</p>
+              </div>
+            ) : preview ? (
               <div className="relative p-4">
                 <img src={preview} alt="Preview" className="max-h-40 rounded-lg object-contain" />
                 <button
-                  onClick={(e) => { e.stopPropagation(); setPreview(null); store.setUploadedFile(null); }}
+                  onClick={(e) => { e.stopPropagation(); setPreview(null); store.setUploadedFile(null); setViolationError(''); }}
                   className="absolute -right-1 -top-1 rounded-full bg-foreground/10 p-1 transition hover:bg-foreground/20"
                 >
                   <X size={14} />
                 </button>
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex items-center gap-1.5 rounded-full bg-green-500/15 px-3 py-1 text-xs font-medium text-green-600">
+                  <ShieldCheck size={12} />
+                  Модерация пройдена
+                </div>
               </div>
             ) : (
               <>
                 <Image size={32} className="mb-3 text-muted-foreground" />
                 <p className="text-sm font-medium text-foreground">Перетащите сюда или кликните для загрузки</p>
                 <p className="mt-1 text-xs text-muted-foreground">PNG, JPG, GIF до 5МБ</p>
+                <p className="mt-2 text-xs text-muted-foreground/60 flex items-center gap-1"><ShieldCheck size={10} /> Баннер будет автоматически проверен ИИ-модерацией</p>
               </>
             )}
           </div>
+          {violationError && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="flex items-start gap-3 rounded-xl border border-destructive/50 bg-destructive/10 p-4 text-destructive"
+            >
+              <AlertTriangle className="mt-0.5 shrink-0" size={18} />
+              <div className="text-sm">
+                <p className="font-semibold">🛡️ Контент заблокирован модерацией</p>
+                <p className="mt-1 opacity-90 whitespace-pre-line">{violationError}</p>
+              </div>
+            </motion.div>
+          )}
         </div>
       ) : (
         <div className="space-y-4">

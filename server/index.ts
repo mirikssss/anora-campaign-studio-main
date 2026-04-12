@@ -12,7 +12,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 const API_URL = process.env.API_URL || ''; 
 // On Vercel, if backend is on same domain, leave empty or set to full URL
@@ -177,12 +177,125 @@ app.get('/api/campaigns', (req, res) => {
 });
 
 // --- 4. PUBLISHER SITES ---
+// --- BANNER CONTENT MODERATION ---
+app.post('/api/validate-banner', async (req, res) => {
+  const { bannerBase64 } = req.body;
+  const apiKey = process.env.OPENROUTER_API_KEY;
+
+  console.log('--- Banner Validation Request ---');
+
+  if (!bannerBase64) {
+    return res.status(400).json({ valid: false, reason: 'No image provided' });
+  }
+
+  if (!apiKey || apiKey === 'your_openrouter_api_key_here' || apiKey.trim() === '') {
+    console.warn('[WARN] No API key for banner validation, skipping AI moderation');
+    return res.json({ valid: true, reason: 'Модерация пропущена (нет API ключа)' });
+  }
+
+  const moderationPrompt = `You are a strict content moderator for an advertising platform. Analyze this banner image and determine if it contains ANY prohibited content.
+
+PROHIBITED CONTENT (must reject if ANY is found):
+- Pornography, nudity, sexual content, overly suggestive imagery
+- Gambling, casinos, betting, slot machines, poker
+- Drugs, narcotics, drug paraphernalia, smoking promotion
+- Weapons, firearms, knives, explosives
+- Extreme violence, gore, blood, graphic injuries
+- Hate speech symbols, extremist imagery, Nazi symbols
+- Alcohol promotion targeting minors
+- Counterfeit goods, fake luxury brands
+- Deceptive/misleading health claims
+- Cryptocurrency scams, pyramid schemes
+
+You MUST return ONLY a valid JSON object (NO markdown wrappers, NO backticks):
+{
+  "allowed": true or false,
+  "category": "safe" or the violation category (e.g. "gambling", "adult", "violence", "drugs", "weapons", "hate_speech", "scam"),
+  "confidence": 0.0 to 1.0,
+  "reason_ru": "Explanation in Russian why the banner was approved or rejected"
+}
+ONLY output JSON.`;
+
+  // Vision-capable models on OpenRouter
+  const visionModels = [
+    "google/gemini-2.0-flash-001",
+    "google/gemma-3-27b-it:free",
+    "meta-llama/llama-4-scout:free",
+  ];
+
+  for (const model of visionModels) {
+    try {
+      console.log(`[MODERATION] Trying vision model: ${model}`);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://anora.io",
+          "X-Title": "Anora Campaign Studio"
+        },
+        body: JSON.stringify({
+          model,
+          messages: [{
+            role: "user",
+            content: [
+              { type: "text", text: moderationPrompt },
+              { type: "image_url", image_url: { url: bannerBase64 } }
+            ]
+          }]
+        }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        console.warn(`[MODERATION] Model ${model} returned ${response.status}`);
+        continue;
+      }
+
+      const data = await response.json();
+      let content = data.choices?.[0]?.message?.content || '{}';
+      content = content.replace(/```json\n?/gi, '').replace(/```\n?/g, '').trim();
+
+      try {
+        const result = JSON.parse(content);
+        console.log(`[MODERATION] Result from ${model}:`, result);
+
+        if (typeof result.allowed === 'boolean') {
+          return res.json({
+            valid: result.allowed,
+            category: result.category || 'unknown',
+            confidence: result.confidence || 0,
+            reason: result.reason_ru || (result.allowed ? 'Контент одобрен' : 'Контент отклонён')
+          });
+        }
+      } catch (parseErr) {
+        console.warn(`[MODERATION] Parse error from ${model}, trying next...`);
+        continue;
+      }
+    } catch (err: any) {
+      console.warn(`[MODERATION] Error with ${model}:`, err.message);
+      continue;
+    }
+  }
+
+  // If all models fail, allow but warn
+  console.warn('[MODERATION] All vision models failed, allowing by default');
+  res.json({ valid: true, reason: 'Автомодерация временно недоступна. Контент будет проверен вручную.' });
+});
+
+// --- 4. CAMPAIGN AI ANALYSIS ---
 app.post('/api/analyze-campaign', async (req, res) => {
-  const { campaignData } = req.body;
+  const { campaignData, bannerBase64 } = req.body;
   const apiKey = process.env.OPENROUTER_API_KEY;
 
   console.log('--- AI Analysis Request ---');
   console.log('Campaign:', campaignData.campaignName);
+  console.log('Banner image included:', !!bannerBase64);
 
   if (!apiKey || apiKey === 'your_openrouter_api_key_here' || apiKey.trim() === '') {
     console.error('CRITICAL: OPENROUTER_API_KEY is missing or not set in .env');
@@ -202,6 +315,7 @@ app.post('/api/analyze-campaign', async (req, res) => {
   - Daily Budget: $${campaignData.dailyBudget}
   - Lifetime Budget: $${campaignData.lifetimeBudget}
   - Device Targeting: ${campaignData.deviceTargeting}
+  ${bannerBase64 ? '\n  A banner image is attached. Please also analyze the visual quality, design, text readability, color scheme, and overall ad effectiveness of the banner. If the banner has issues, add a card with id "bannerQuality".' : '\n  No banner image was provided.'}
   
   You MUST return ONLY a valid JSON object with this exact structure (NO markdown wrappers, NO backticks):
   {
@@ -209,7 +323,7 @@ app.post('/api/analyze-campaign', async (req, res) => {
     "Summary": "Краткая общая оценка кампании...",
     "Cards": [
       {
-        "id": "dailyBudget", // STRICTLY use one of: "dailyBudget", "lifetimeBudget", "geos", "audienceType", "strategy", "other"
+        "id": "dailyBudget", // STRICTLY use one of: "dailyBudget", "lifetimeBudget", "geos", "audienceType", "strategy", "bannerQuality", "other"
         "title": "Увеличьте дневной бюджет",
         "status": "warning", 
         "explanation": "Подробное объяснение почему это нужно изменить (учитывая, что целевой рынок - СНГ).",
@@ -219,9 +333,17 @@ app.post('/api/analyze-campaign', async (req, res) => {
       }
     ]
   }
+  ${bannerBase64 ? 'Include a card with id "bannerQuality" analyzing the attached banner design quality, CTA visibility, color harmony, and text readability.' : ''}
   Respond in Russian. Keep it professional. Target market is CIS (СНГ region) - don't suggest USA/Europe. Return 3-5 cards analyzing different aspects. ONLY output JSON.`;
 
-  const modelsToTry = [
+  // If banner is included, use vision-capable models first, then fallback to text-only
+  const visionModels = [
+    "google/gemini-2.0-flash-001",
+    "google/gemma-3-27b-it:free",
+    "meta-llama/llama-4-scout:free",
+  ];
+
+  const textModels = [
     "google/gemma-4-31b-it:free",
     "openai/gpt-oss-120b:free",
     "openai/gpt-oss-20b:free",
@@ -230,13 +352,35 @@ app.post('/api/analyze-campaign', async (req, res) => {
     "qwen/qwen3-next-80b-a3b-instruct:free"
   ];
 
+  // If we have a banner, try vision models first, then text models as fallback
+  const modelsToTry = bannerBase64 
+    ? [...visionModels, ...textModels] 
+    : textModels;
+
   let success = false;
   let parsedContent = null;
   let lastError = '';
+  let usedVisionModel = false;
 
   for (const model of modelsToTry) {
     try {
-      console.log(`Trying OpenRouter model: ${model}`);
+      const isVisionModel = visionModels.includes(model);
+      console.log(`Trying OpenRouter model: ${model} (vision: ${isVisionModel})`);
+
+      // Build message content: use multimodal format for vision models with banner
+      let messageContent: any;
+      if (isVisionModel && bannerBase64) {
+        messageContent = [
+          { type: "text", text: campaignPrompt },
+          { type: "image_url", image_url: { url: bannerBase64 } }
+        ];
+      } else {
+        messageContent = campaignPrompt;
+      }
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 20000);
+
       const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -247,9 +391,12 @@ app.post('/api/analyze-campaign', async (req, res) => {
         },
         body: JSON.stringify({
           model: model,
-          messages: [{ role: "user", content: campaignPrompt }]
-        })
+          messages: [{ role: "user", content: messageContent }]
+        }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -270,7 +417,8 @@ app.post('/api/analyze-campaign', async (req, res) => {
         // Basic validation to ensure the LLM followed instructions
         if (parsedContent && typeof parsedContent === 'object' && Array.isArray(parsedContent.Cards)) {
           success = true;
-          console.log(`[SUCCESS] Valid response from model: ${model}`);
+          usedVisionModel = isVisionModel;
+          console.log(`[SUCCESS] Valid response from model: ${model} (vision: ${isVisionModel})`);
           break; // Stop loop if successful
         } else {
           console.warn(`[WARN] Model ${model} returned JSON but without 'Cards' array. Trying next...`);
@@ -290,10 +438,23 @@ app.post('/api/analyze-campaign', async (req, res) => {
   }
 
   if (success && parsedContent) {
+    // If banner was provided but we fell back to a text model, add an info card
+    if (bannerBase64 && !usedVisionModel && Array.isArray(parsedContent.Cards)) {
+      const hasBannerCard = parsedContent.Cards.some((c: any) => c.id === 'bannerQuality');
+      if (!hasBannerCard) {
+        parsedContent.Cards.push({
+          id: 'bannerQuality',
+          title: 'Визуальный анализ баннера',
+          status: 'warning',
+          explanation: 'ИИ-модели с поддержкой изображений были недоступны. Баннер не был проанализирован визуально. Рекомендуем повторить анализ позже для получения оценки дизайна.',
+          currentValue: 'Не проанализирован',
+          suggestion: 'Повторить анализ'
+        });
+      }
+    }
     res.json(parsedContent);
   } else {
     console.error('[ERROR] All fallback models failed. Last error:', lastError);
-    // If all fail, return a fallback UI card instead of a 500 error so the UI still works gracefully
     res.json({
       Score: 50,
       Summary: 'Не удалось сгенерировать ИИ-советы. Выбранные бесплатные модели перегружены или недоступны.',
@@ -302,7 +463,7 @@ app.post('/api/analyze-campaign', async (req, res) => {
           id: 'error-card',
           title: 'Серверные ограничения',
           status: 'warning',
-          explanation: `Попытка использовать 6 разных бесплатных моделей не удалась. ИИ-сеть временно перегружена.`,
+          explanation: `Попытка использовать несколько разных моделей не удалась. ИИ-сеть временно перегружена.`,
           currentValue: 'Ошибка API',
           suggestion: 'Повторите анализ позже'
         }
