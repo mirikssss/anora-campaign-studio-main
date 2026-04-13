@@ -24,6 +24,16 @@ app.get('/', (req, res) => {
 // Serve uploaded files statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Serve SDK.js from backend so external sites can load it via <script src="https://api.anora.io/sdk.js">
+app.get('/sdk.js', (req, res) => {
+  const sdkPath = path.join(__dirname, '..', 'public', 'sdk.js');
+  if (fs.existsSync(sdkPath)) {
+    res.type('application/javascript').sendFile(sdkPath);
+  } else {
+    res.status(404).send('// Anora SDK not found');
+  }
+});
+
 // Configure Multer to save uploaded banners
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -613,12 +623,16 @@ app.get('/api/ads', (req, res) => {
     return res.status(404).json({ error: 'No ads available' });
   }
 
-  // Optional: check if siteId exists and matches format, but for now just return random ad
   const randomAd = activeCampaigns[Math.floor(Math.random() * activeCampaigns.length)];
 
+  // Build absolute banner URL so external sites can load images
+  const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+  const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost:3001';
+  const baseUrl = API_URL || `${protocol}://${host}`;
+  
   res.json({
     id: randomAd.id,
-    bannerUrl: `${API_URL}${randomAd.banner_url}`,
+    bannerUrl: `${baseUrl}${randomAd.banner_url}`,
     link: randomAd.landing_url,
     format: format || '300x250'
   });

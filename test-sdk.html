@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест Anora SDK - Внешний сайт</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: system-ui, -apple-system, sans-serif; 
+            background: #f5f5f5; 
+            color: #333;
+            line-height: 1.6;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        header { 
+            background: white; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        header h1 { font-size: 24px; color: #111; }
+        header p { color: #666; margin-top: 4px; }
+        .content { 
+            display: flex; 
+            gap: 20px; 
+        }
+        .main-content { 
+            flex: 1;
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .sidebar {
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .sidebar-block {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        article h2 { font-size: 20px; margin-bottom: 12px; }
+        article p { margin-bottom: 12px; color: #555; }
+        .ad-label { 
+            font-size: 10px; 
+            color: #aaa; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .status { 
+            margin-top: 20px; 
+            padding: 16px; 
+            background: #f0fdf4; 
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #166534;
+        }
+        .status.error {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌐 Тестовый внешний сайт</h1>
+            <p>Эта страница имитирует сторонний сайт паблишера, который подключил Anora SDK</p>
+        </header>
+
+        <div class="content">
+            <div class="main-content">
+                <article>
+                    <h2>Последние новости технологий</h2>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+                    <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.</p>
+                    
+                    <div style="margin: 24px 0;">
+                        <div class="ad-label">📢 Рекламный блок (inline)</div>
+                        <div class="anora-ad-slot" data-format="300x250"></div>
+                    </div>
+
+                    <p>Sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.</p>
+                    <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>
+                </article>
+            </div>
+
+            <div class="sidebar">
+                <div class="sidebar-block">
+                    <div class="ad-label">📢 Рекламный блок (sidebar)</div>
+                    <div class="anora-ad-slot" data-format="300x250"></div>
+                </div>
+                
+                <div class="sidebar-block">
+                    <h3 style="font-size: 14px; margin-bottom: 8px;">Популярное</h3>
+                    <ul style="font-size: 13px; color: #666; padding-left: 16px;">
+                        <li>Новый iPhone 18 представлен</li>
+                        <li>Рынок криптовалют растет</li>
+                        <li>AI заменит разработчиков?</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="status" id="sdk-status">
+            ⏳ Ожидание загрузки SDK...
+        </div>
+    </div>
+
+    <!-- 
+    ==============================
+    ANORA SDK INTEGRATION
+    ==============================
+    
+    Инструкция для паблишера:
+    1. Вставьте этот скрипт перед </body>
+    2. Замените YOUR_SITE_ID на ID вашего сайта из Anora Dashboard
+    3. Добавьте <div class="anora-ad-slot" data-format="300x250"></div> где хотите рекламу
+    
+    Доступные форматы: 300x250, 728x90, 160x600
+    -->
+    <script>
+        // Override API URL for local testing
+        window.ANORA_API_URL = 'http://localhost:3001';
+    </script>
+    <script 
+        src="http://localhost:3001/sdk.js" 
+        data-site-id="c9a3d38e-9309-4da4-8d2a-075d28fc5c7b">
+    </script>
+
+    <script>
+        // Status checker
+        setTimeout(() => {
+            const statusEl = document.getElementById('sdk-status');
+            if (window.anora) {
+                statusEl.innerHTML = `✅ Anora SDK v${window.anora.version} загружен! Проверьте рекламные блоки выше.`;
+            } else {
+                statusEl.className = 'status error';
+                statusEl.innerHTML = '❌ SDK не загрузился. Убедитесь что сервер запущен на localhost:3001';
+            }
+        }, 3000);
+    </script>
+</body>
+</html>
