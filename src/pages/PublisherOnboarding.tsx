@@ -365,7 +365,19 @@ export default function PublisherOnboarding() {
     }
   };
 
-  const codeSnippet = `<script>\n  (function(a,n,o,r,a_s){\n    a[n]=a[n]||function(){(a[n].q=a[n].q||[]).push(arguments)};\n    let s=document.createElement(o), m=document.getElementsByTagName(o)[0];\n    s.async=1; s.src=r; s.dataset.siteId="${siteId || 'YOUR_SITE_ID'}";\n    m.parentNode.insertBefore(s,m);\n  })(window, "anora", "script", "https://cdn.anora.io/sdk.js");\n</script>`;
+  const codeSnippet = `<!-- 1. Вставьте этот SDK в <head> вашего сайта -->
+<script 
+  src="${API_URL}/sdk.js" 
+  data-site-id="${siteId || 'YOUR_SITE_ID'}"
+  async>
+</script>
+
+<!-- 2. Разместите этот блок там, где должна быть реклама -->
+<div 
+  class="anora-ad-slot" 
+  data-format="${format}" 
+  data-location="${location}">
+</div>`;
 
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans">
